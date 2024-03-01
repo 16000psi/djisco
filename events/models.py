@@ -45,6 +45,14 @@ class Event(models.Model):
     location = models.TextField(max_length=400)
     description = models.TextField(max_length=2000, blank=True)
 
+    class Meta:
+        constraints = [
+            models.CheckConstraint(
+                check=models.Q(ends_at__gt=models.F("starts_at")),
+                name="end_datetime_after_start_datetime",
+            )
+        ]
+
     def get_attendees(self):
         subquery = RSVP.objects.filter(
             event=self, status=RSVP.AttendanceOptions.YES
@@ -77,6 +85,9 @@ class RSVP(models.Model):
 
     def __str__(self):
         return self.status
+
+    class Meta:
+        unique_together = [("user", "event")]
 
 
 class ContributionRequirement(models.Model):
