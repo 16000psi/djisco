@@ -1,28 +1,23 @@
-
 {% extends "base.html" %}
 
-
-{% block title %}Event App - Example event{% endblock %}
+{% block title %}Event App - {{event.title}}{% endblock %}
 {% block content %}
-    <p><a href="{% url 'event_list' %}">Home</a>&nbsp;&gt;&nbsp;Example Event</p>
+<p><a href="{% url 'event_list' %}">Home</a>&nbsp;&gt;&nbsp;{{event.title}}</p>
     <article class="layout__single">
-        <h2>Example Event<h2>
+        <h2>{{event.title}}<h2>
 
         <h4>Date And Time</h4>
-        <time>Start time, end time</time>
+        <time>{{event.starts_at}} - {{event.ends_at}}</time>
 
         <h4>Location</h4>
-        <p>Location</p>
+        <p>{{event.location}}</p>
 
         <h4>Maximum number of attendees</h4>
-        <p>45</p>
+        <p>{{event.get_attendee_count}}</p>
 
         <h4>Description</h4>
-        <p class="rich-text">A event on Venus is a concept both fantastical and intriguing, given the extreme conditions of the planet's atmosphere. Venus, the second planet from the Sun in our solar system, is a harsh and hostile environment, with surface temperatures exceeding 450 degrees Celsius (842 degrees Fahrenheit) and atmospheric pressure about 92 times greater than that of Earth. Yet, let us embark on an imaginative journey to conceptualize a picnic in Venus' atmosphere.<br><br>The first challenge of planning a picnic on Venus is to consider the extreme temperatures. To overcome this obstacle, specially designed heat-resistant, pressurized habitats would be essential. These habitats would need to be equipped with advanced life support systems to maintain a comfortable temperature and breathable atmosphere for humans.<br><br>The picnic setup would likely take place within these habitats, complete with inflatable, transparent enclosures that allow picnic-goers to enjoy the breathtaking, cloud-covered Venusian sky. The habitat's interior would replicate the ambiance of a picnic, complete with seating arrangements, tables, and food stations.<br></p>
+        <p class="rich-text">{{event.description}}</p>
     </article>
 
-
-
-
-
 {% endblock %}
+
