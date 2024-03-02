@@ -1,10 +1,14 @@
-from django.shortcuts import get_object_or_404, render
+from django.shortcuts import render, get_object_or_404
 
 from .models import Event
 
 
 def event_list(request):
-    return render(request, "events/event_list.html")
+    events = Event.objects.all().order_by("starts_at")
+    context = {
+        "events": events,
+    }
+    return render(request, "events/event_list.html", context)
 
 
 def event_detail(request, pk):

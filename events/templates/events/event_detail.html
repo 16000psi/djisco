@@ -1,23 +1,22 @@
 {% extends "base.html" %}
 
-{% block title %}Event App - {{event.title}}{% endblock %}
+{% block title %}Event App - {{ event.title }}{% endblock title %}
 {% block content %}
-<p><a href="{% url 'event_list' %}">Home</a>&nbsp;&gt;&nbsp;{{event.title}}</p>
+<p><a href="{% url 'event_list' %}">Home</a>&nbsp;&gt;&nbsp;{{ event.title }}</p>
     <article class="layout__single">
-        <h2>{{event.title}}<h2>
+        <h2>{{ event.title }}</h2>
 
         <h4>Date And Time</h4>
-        <time>{{event.starts_at}} - {{event.ends_at}}</time>
+        <time>{{ event.starts_at }} - {{ event.ends_at }}</time>
 
         <h4>Location</h4>
-        <p>{{event.location}}</p>
+        <p>{{ event.location }}</p>
 
         <h4>Maximum number of attendees</h4>
-        <p>{{event.get_attendee_count}}</p>
+        <p>{{ event.get_attendee_count }}</p>
 
         <h4>Description</h4>
-        <p class="rich-text">{{event.description}}</p>
+        <p class="rich-text">{{ event.description }}</p>
     </article>
 
-{% endblock %}
-
+{% endblock content %}

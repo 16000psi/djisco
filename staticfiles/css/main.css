@@ -57,6 +57,7 @@ html {
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   scroll-behavior: smooth;
+  background: var(--color--big-stone);
 }
 @media (prefers-reduced-motion: reduce) {
   html {
@@ -176,7 +177,8 @@ h6,
 /* text colour catch-all */
 
 p,
-time {
+time,
+a {
   color: var(--color--white);
 }
 
@@ -837,4 +839,13 @@ blockquote {
 }
 .layout__single p {
   margin: 0;
+}
+
+
+
+/* FEB CHANGES */
+
+
+.layout {
+  padding: 10px 20px 40px 10px;
 }
