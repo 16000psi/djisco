@@ -178,7 +178,8 @@ h6,
 
 p,
 time,
-a {
+a,
+span {
   color: var(--color--white);
 }
 
@@ -841,13 +842,28 @@ blockquote {
   margin: 0;
 }
 
-
-
 /* FEB CHANGES */
-
 
 .layout {
   padding: 10px 20px 40px 10px;
+}
+
+.title_bar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.title {
+  margin: 0px;
+}
+
+.title_bar__pagination__item {
+  color: var(--color--light-grey-accessible);
+  margin-bottom: 3px;
+  font-size: 0.85em;
+  font-style: italic;
+  margin: 0px 5px;
 }
 
 .grid {
@@ -876,7 +892,6 @@ blockquote {
   display: block;
   margin-bottom: 10px;
   color: var(--color--indigo);
-
 }
 
 .active-link {
@@ -884,3 +899,19 @@ blockquote {
   font-weight: bold;
 }
 
+.pagination {
+  display: flex;
+  justify-content: center;
+}
+
+.pagination__readout {
+  color: var(--color--light-grey-accessible);
+  margin-bottom: 3px;
+  font-size: 0.85em;
+  font-style: italic;
+}
+
+.pagination__item {
+  font-size: 1.2em;
+  margin: 15px;
+}

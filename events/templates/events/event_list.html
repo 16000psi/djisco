@@ -1,49 +1,88 @@
 {% extends "base.html" %}
 {% block content %}
-    <div class="layout">
+<div class="layout">
     <div class="grid grid--sidebar">
-        <h2>{{ title }}</h2>
+        <div class="title-bar">
+        <h2 class="title">{{ title }}</h2>
+        <div class="top__pagination">
+            {% if page_obj.has_previous %}
+            <a aria-label="go to first page" class="title_bar__pagination__item" href="?page=1"><<</a>
+            <a aria-label="go to previous page" class="title_bar__pagination__item" href="?page={{ page_obj.previous_page_number }}">
+                <
+            </a>
+            {% endif %}
+        <span aria-label="page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}
+" class="titlebar__pagination-item">
+                {{ page_obj.number }} / {{ page_obj.paginator.num_pages }}
+            </span>
+            {% if page_obj.has_next %}
+            <a aria-label="go to next page" class="title_bar__pagination__item" href="?page={{ page_obj.next_page_number }}">></a>
+            <a aria-label="go to last page" class="title_bar__pagination__item" href="?page={{ page_obj.paginator.num_pages }}">>></a>
+            {% endif %}
+        </div>
+        </div>
+
         <a href="" class="button button--primary">Create a new event</a>
     </div>
-        <div class="grid grid--sidebar">
-            <div>
-                {% for event in events %}
-                    <article class="card layout__article">
-                        <a href="{% url 'event_detail' pk=event.id %}">
-                            <h3>{{ event.title }}</h3>
-                        </a>        
-
-                        {% if event.ends_at < now %}
-                            <p>{{ event.starts_at|timesince }} ago - {{ event.starts_at|date }}</p>
-                        {% else %}
-                            <time>{{ event.starts_at }} - {{ event.ends_at }}</time>
-                        {% endif %}
-                            <p>{{ event.location }}</p>
-                            <p class="rich-text">{{ event.description }}</p>
-                    </article>
-                {% endfor %}
+    <div class="grid grid--sidebar">
+        <div>
+            {% for event in page_obj %}
+            <article class="card layout__article">
+                <a href="{% url 'event_detail' pk=event.id %}">
+                    <h3>{{ event.title }}</h3>
+                </a>        
+                {% if event.ends_at < now %}
+                <p>{{ event.starts_at|timesince }} ago - {{ event.starts_at|date }}</p>
+                {% else %}
+                <time>{{ event.starts_at }} - {{ event.ends_at }}</time>
+                {% endif %}
+                <p>{{ event.location }}</p>
+                <p class="rich-text">{{ event.description }}</p>
+            </article>
+            {% endfor %}
+            <div class="pagination">
+                <p class="pagination__readout">{{ pagination_message }}</p>
             </div>
-            <div class="grid__item">      
-                {% if when == "past" %}
-                    <a class="active-link sidebar--link" href="{% url 'event_list' when='future' %}">
-                        - Past Events
-                    </a>
-                {% else %}
-                    <a class="sidebar--link" href="{% url 'event_list' when='past' %}">
-                        Past Events
-                    </a>
-                {% endif %} 
-                {% if when == "all" %}
-                    <a class="active-link sidebar--link" href="{% url 'event_list' when='future' %}">
-                        - All Events
-                    </a>
-                {% else %}
-                    <a class="sidebar--link" href="{% url 'event_list' when='all' %}">
-                        All Events
-                    </a>
+            <div class="pagination">
+                {% if page_obj.has_previous %}
+                <a class="pagination__item" href="?page=1">
+                    first
+                </a>
+                <a class="pagination__item" href="?page={{ page_obj.previous_page_number }}">
+                    previous
+                </a>
+                {% endif %}
+                <span class="pagination__item">
+                    Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}
+                </span>
+                {% if page_obj.has_next %}
+                <a class="pagination__item" href="?page={{ page_obj.next_page_number }}">next</a>
+                <a class="pagination__item" href="?page={{ page_obj.paginator.num_pages }}">last</a>
                 {% endif %}
             </div>
-        
         </div>
+        <div class="grid__item">      
+            {% if when == "past" %}
+            <a class="active-link sidebar--link" href="{% url 'event_list' when='future' %}">
+                - Past Events
+            </a>
+            {% else %}
+            <a class="sidebar--link" href="{% url 'event_list' when='past' %}">
+                Past Events
+            </a>
+            {% endif %} 
+            {% if when == "all" %}
+            <a class="active-link sidebar--link" href="{% url 'event_list' when='future' %}">
+                - All Events
+            </a>
+            {% else %}
+            <a class="sidebar--link" href="{% url 'event_list' when='all' %}">
+                All Events
+            </a>
+            {% endif %}
+        </div>
+
     </div>
+
+</div>
 {% endblock content %}
