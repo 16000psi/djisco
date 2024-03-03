@@ -849,3 +849,38 @@ blockquote {
 .layout {
   padding: 10px 20px 40px 10px;
 }
+
+.grid {
+  padding: 0px;
+  margin: 0px;
+}
+
+.grid__item {
+  background-color: var(--color--white);
+}
+
+.button--primary {
+  line-height: 3;
+  text-align: center;
+}
+
+.layout__article {
+  margin-bottom: 0px;
+}
+
+.card {
+  padding: 20px;
+}
+
+.sidebar--link {
+  display: block;
+  margin-bottom: 10px;
+  color: var(--color--indigo);
+
+}
+
+.active-link {
+  color: var(--color--indigo);
+  font-weight: bold;
+}
+

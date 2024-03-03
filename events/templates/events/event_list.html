@@ -1,17 +1,49 @@
 {% extends "base.html" %}
 {% block content %}
+    <div class="layout">
     <div class="grid grid--sidebar">
-        <h2>Event Listing Page Title</h2>
+        <h2>{{ title }}</h2>
         <a href="" class="button button--primary">Create a new event</a>
     </div>
-    {% for event in events %}
-        <article class="card layout__article">
-            <a href="{% url 'event_detail' pk=event.id %}">
-                <h3>{{ event.title }}</h3>
-            </a>        
-            <time>{{ event.starts_at }} - {{ event.ends_at }}</time>
-            <p>{{ event.location }}</p>
-            <p class="rich-text">{{ event.description }}</p>
-        </article>
-    {% endfor %}
+        <div class="grid grid--sidebar">
+            <div>
+                {% for event in events %}
+                    <article class="card layout__article">
+                        <a href="{% url 'event_detail' pk=event.id %}">
+                            <h3>{{ event.title }}</h3>
+                        </a>        
+
+                        {% if event.ends_at < now %}
+                            <p>{{ event.starts_at|timesince }} ago - {{ event.starts_at|date }}</p>
+                        {% else %}
+                            <time>{{ event.starts_at }} - {{ event.ends_at }}</time>
+                        {% endif %}
+                            <p>{{ event.location }}</p>
+                            <p class="rich-text">{{ event.description }}</p>
+                    </article>
+                {% endfor %}
+            </div>
+            <div class="grid__item">      
+                {% if when == "past" %}
+                    <a class="active-link sidebar--link" href="{% url 'event_list' when='future' %}">
+                        - Past Events
+                    </a>
+                {% else %}
+                    <a class="sidebar--link" href="{% url 'event_list' when='past' %}">
+                        Past Events
+                    </a>
+                {% endif %} 
+                {% if when == "all" %}
+                    <a class="active-link sidebar--link" href="{% url 'event_list' when='future' %}">
+                        - All Events
+                    </a>
+                {% else %}
+                    <a class="sidebar--link" href="{% url 'event_list' when='all' %}">
+                        All Events
+                    </a>
+                {% endif %}
+            </div>
+        
+        </div>
+    </div>
 {% endblock content %}
