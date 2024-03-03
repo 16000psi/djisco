@@ -1,15 +1,12 @@
 from django.db import models
 from django.utils import timezone
-from django.utils.translation import gettext_lazy as _
 
 from users.models import User
 
 
 class EventQuerySet(models.QuerySet):
     def for_user(self, user):
-        subquery = RSVP.objects.filter(
-            user=user, status=RSVP.AttendanceOptions.YES
-        ).values("event_id")
+        subquery = RSVP.objects.filter(user=user).values("event_id")
         return self.filter(id__in=models.Subquery(subquery))
 
     def in_future(self):
@@ -54,57 +51,51 @@ class Event(models.Model):
         ]
 
     def get_attendees(self):
-        subquery = RSVP.objects.filter(
-            event=self, status=RSVP.AttendanceOptions.YES
-        ).values("user_id")
+        subquery = RSVP.objects.filter(event=self).values("user_id")
         return User.objects.filter(id__in=models.Subquery(subquery))
 
     def get_contribution_requirements(self):
         return ContributionRequirement.objects.filter(event=self)
 
     def get_attendee_count(self):
-        return RSVP.objects.filter(
-            event=self, status=RSVP.AttendanceOptions.YES
-        ).count()
+        return RSVP.objects.filter(event=self).count()
 
     def __str__(self):
         return f"{self.title}, {self.starts_at} - {self.ends_at}"
 
 
 class RSVP(models.Model):
-    class AttendanceOptions(models.TextChoices):
-        YES = "yes", _("Yes")
-        NO = "no", _("No")
-
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     event = models.ForeignKey(Event, on_delete=models.CASCADE)
-    status = models.TextField(
-        choices=AttendanceOptions.choices, default=AttendanceOptions.YES
-    )
     created_at = models.DateTimeField(auto_now_add=True)
-
-    def __str__(self):
-        return self.status
 
     class Meta:
         unique_together = [("user", "event")]
 
+    def __str__(self):
+        return f"Attending {self.event.title}"
 
-class ContributionRequirement(models.Model):
-    event = models.ForeignKey(Event, on_delete=models.CASCADE)
-    title = models.TextField()
+
+class ContributionItem(models.Model):
+    title = models.TextField(unique=True)
 
     def __str__(self):
         return self.title
 
 
-class ContributionCommitment(models.Model):
+class ContributionRequirement(models.Model):
     event = models.ForeignKey(Event, on_delete=models.CASCADE)
-    user = models.ForeignKey(User, on_delete=models.CASCADE)
-    title = models.TextField()
+    contribution_item = models.ForeignKey(ContributionItem, on_delete=models.PROTECT)
+
+    def __str__(self):
+        return self.contribution_item.title
+
+
+class ContributionCommitment(models.Model):
+    RSVP = models.ForeignKey(RSVP, on_delete=models.CASCADE)
     contribution_requirement = models.ForeignKey(
-        ContributionRequirement, on_delete=models.RESTRICT, null=True
+        ContributionRequirement, on_delete=models.RESTRICT
     )
 
     def __str__(self):
-        return f"{self.user} bringing {self.title}"
+        return f"{self.RSVP.user} bringing {self.contribution_requirement}"
