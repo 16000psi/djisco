@@ -1,22 +1,38 @@
 {% extends "base.html" %}
-
-{% block title %}Event App - {{ event.title }}{% endblock title %}
+{% block title %}Djisco - {{ event.title }}{% endblock title %}
 {% block content %}
-<p><a href="{% url 'event_list' %}">Home</a>&nbsp;&gt;&nbsp;{{ event.title }}</p>
+    {% if event.ends_at < now %}
+        <p><a href="{% url 'event_list' %}">Home</a>&nbsp;&gt;&nbsp;{{ event.title }}</p>
+    {% else %}
+        <p><a href="{% url 'event_list' %}">Home</a>&nbsp;&gt;&nbsp;{{ event.title }}</p>
+    {% endif %}
     <article class="layout__single">
         <h2>{{ event.title }}</h2>
-
+        <hr>
         <h4>Date And Time</h4>
-        <time>{{ event.starts_at }} - {{ event.ends_at }}</time>
 
+        {% if event.ends_at < now %}
+            <p>{{ event.starts_at|timesince }} ago - {{ event.starts_at|date }}</p>
+        {% else %}
+            <time>{{ event.starts_at }} - {{ event.ends_at }}</time>
+        {% endif %}
+
+        <hr>
         <h4>Location</h4>
         <p>{{ event.location }}</p>
 
-        <h4>Maximum number of attendees</h4>
-        <p>{{ event.get_attendee_count }}</p>
-
+        <hr>
+        {% if event.ends_at < now %}
+            <h4>Attendance</h4>
+            <p>{{ event.attendee_count }} people attended out of {{ event.maximum_attendees }} possible spaces</p>
+        {% else %}
+            <h4>Attendance</h4>
+  <p>{{ event.attendee_count }} attendee{{ event.attendee_count|pluralize:"s" }} out of {{ event.maximum_attendees }} spaces filled - {{ event.remaining_spaces }} spaces left</p>
+        {% endif %}
+        <hr>
         <h4>Description</h4>
         <p class="rich-text">{{ event.description }}</p>
+        <hr>
     </article>
 
 {% endblock content %}
