@@ -1,6 +1,7 @@
 from django.db import models
+from django.db.models import Count, F
+from django.db.models.functions import Greatest
 from django.utils import timezone
-
 from users.models import User
 
 
@@ -8,6 +9,15 @@ class EventQuerySet(models.QuerySet):
     def for_user(self, user):
         subquery = RSVP.objects.filter(user=user).values("event_id")
         return self.filter(id__in=models.Subquery(subquery))
+
+    def with_attendance_fields(self):
+        return self.annotate(
+            attendee_count=Count("respondents"),
+            remaining_spaces=Greatest(
+                F("maximum_attendees") - F("attendee_count"),
+                0,
+            ),
+        )
 
     def in_future(self):
         return self.filter(ends_at__gt=timezone.now())
@@ -23,6 +33,9 @@ class EventManager(models.Manager):
     def for_user(self, user):
         return self.get_queryset().for_user(user)
 
+    def with_attendance_fields(self):
+        return self.get_queryset().with_attendance_fields()
+
     def in_future(self):
         return self.get_queryset().in_future()
 
@@ -36,6 +49,7 @@ class Event(models.Model):
     organiser = models.ForeignKey(
         User, on_delete=models.CASCADE, related_name="is_organising"
     )
+    maximum_attendees = models.IntegerField()
     respondents = models.ManyToManyField(User, through="RSVP")
     starts_at = models.DateTimeField()
     ends_at = models.DateTimeField()
@@ -93,9 +107,7 @@ class ContributionRequirement(models.Model):
 
 class ContributionCommitment(models.Model):
     RSVP = models.ForeignKey(RSVP, on_delete=models.CASCADE)
-    contribution_requirement = models.ForeignKey(
-        ContributionRequirement, on_delete=models.RESTRICT
-    )
+    contribution_requirement = models.ForeignKey(ContributionRequirement, on_delete=models.RESTRICT)
 
     def __str__(self):
         return f"{self.RSVP.user} bringing {self.contribution_requirement}"
