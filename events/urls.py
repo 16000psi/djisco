@@ -5,5 +5,10 @@ urlpatterns = [
     path("accounts/", include("django.contrib.auth.urls")),
     path("events/", views.event_list, name="event_list"),
     path("events/<int:pk>/", views.event_detail, name="event_detail"),
-    path("events/<str:when>/", views.event_list, name="event_list"),
+    path("events/<str:when>/<int:page>/", views.event_list, name="event_list"),
+    path(
+        "events/<int:pk>/attendance/<str:action>/",
+        views.manage_event_attendance,
+        name="event_attendance",
+    ),
 ]

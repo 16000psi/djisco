@@ -27,12 +27,43 @@
             <p>{{ event.attendee_count }} people attended out of {{ event.maximum_attendees }} possible spaces</p>
         {% else %}
             <h4>Attendance</h4>
-  <p>{{ event.attendee_count }} attendee{{ event.attendee_count|pluralize:"s" }} out of {{ event.maximum_attendees }} spaces filled - {{ event.remaining_spaces }} spaces left</p>
+            {% if event.has_user_rsvp %}
+                <p>{{ event.attendee_count }} attendee{{ event.attendee_count|pluralize:"s" }} out of {{ event.maximum_attendees }} spaces filled - {{ event.remaining_spaces }} spaces left - you are attending</p>
+            {% else %}
+                <p>{{ event.attendee_count }} attendee{{ event.attendee_count|pluralize:"s" }} out of {{ event.maximum_attendees }} spaces filled - {{ event.remaining_spaces }} spaces left</p>
+            {% endif %}
         {% endif %}
         <hr>
         <h4>Description</h4>
         <p class="rich-text">{{ event.description }}</p>
         <hr>
+        <div class="detail_form_container">
+            {% if user.is_authenticated %}
+                {% if event.has_user_rsvp %}
+                    {% if event.ends_at > now %}
+                        <form id="unattend-button" method="post" action="{% url 'event_attendance' pk=event.id action='unattend' %}">
+                            {% csrf_token %}
+                            <input type="hidden" name="redirect_target" value="{{ request.path }}">
+                            <div class="attend_button_container">
+                                <button class="button button--border unattend_button" type="submit" id="submitButton">Cancel your attendance</button>
+                            </div>
+                        </form>
+                    {% else %}
+                        <p class="attendance_record">You attended this Event!</p>
+                    {% endif %}
+                {% else %}
+                    {% if event.accepting_attendees %}
+                        <form id="attend-button" method="post" action="{% url 'event_attendance' pk=event.id action='attend' %}">
+                            {% csrf_token %}
+                            <input type="hidden" name="redirect_target" value="{{ request.path }}">
+                            <div class="attend_button_container">
+                                <button class="button button--border" type="submit" id="submitButton">Join this Event!</button>
+                            </div>
+                        </form>
+                    {% endif %}
+                {% endif %}
+            {% endif %}
+        </div>
     </article>
 
 {% endblock content %}

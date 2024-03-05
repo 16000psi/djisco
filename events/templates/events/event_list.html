@@ -6,8 +6,8 @@
                 <h2 class="title">{{ title }}</h2>
                 <div class="top__pagination">
                     {% if page_obj.has_previous %}
-                        <a aria-label="go to first page" class="title_bar__pagination__item" href="?page=1"><<</a>
-                        <a aria-label="go to previous page" class="title_bar__pagination__item" href="?page={{ page_obj.previous_page_number }}">
+                        <a aria-label="go to first page" class="title_bar__pagination__item" href="{% url 'event_list' when=when page=1 %}"><<</a>
+                        <a aria-label="go to previous page" class="title_bar__pagination__item" href="{% url 'event_list' when=when page=page_obj.previous_page_number %}">
                             <
                         </a>
                     {% endif %}
@@ -16,8 +16,8 @@
                         {{ page_obj.number }} / {{ page_obj.paginator.num_pages }}
                     </span>
                     {% if page_obj.has_next %}
-                        <a aria-label="go to next page" class="title_bar__pagination__item" href="?page={{ page_obj.next_page_number }}">></a>
-                        <a aria-label="go to last page" class="title_bar__pagination__item" href="?page={{ page_obj.paginator.num_pages }}">>></a>
+                        <a aria-label="go to next page" class="title_bar__pagination__item" href="{% url 'event_list' when=when page=page_obj.next_page_number %}">></a>
+                        <a aria-label="go to last page" class="title_bar__pagination__item" href="{% url 'event_list' when=when page=page_obj.paginator.num_pages %}">>></a>
                     {% endif %}
                 </div>
             </div>
@@ -28,28 +28,60 @@
                 <p class="subtitle">We have events ranging from {{ attendees_min }} to {{ attendees_max }} attendees.</p>
                 {% for event in page_obj %}
                     <article class="card layout__article">
-                        <a href="{% url 'event_detail' pk=event.id %}">
-                            <h3>{{ event.title }}</h3>
-                        </a>        
-                            {% if event.ends_at < now %}
-                        <p>{{ event.starts_at|timesince }} ago - {{ event.starts_at|date }}</p>
+                        <div class="title_attending_container">
+                            <a href="{% url 'event_detail' pk=event.id %}">
+                                <h3>{{ event.title }}</h3>
+                            </a>        
+                            {% if user.is_authenticated %}
+                                {% if event.has_user_rsvp %}
+                                    {% if event.ends_at > now %}
+                                        <form id="unattend_button" method="post" action="{% url 'event_attendance' pk=event.id action='unattend' %}">
+                                            <input type="hidden" name="redirect_target" value="{{ request.path }}">
+                                            {% csrf_token %}
+                                            <div class="attend_button_container">
+                                                <button class="button button--border unattend_button" type="submit" id="submitButton">Cancel</button>
+                                            </div>
+                                        </form>
+                                    {% else %}
+                                        <p class="attendance_record">You attended this Event</p>
+                                    {% endif %}
+                                {% else %}
+                                    {% if event.accepting_attendees %}
+                                        <form id="attend_button" method="post" action="{% url 'event_attendance' pk=event.id action='attend' %}">
+                                            <input type="hidden" name="redirect_target" value="{{ request.path }}">
+                                            {% csrf_token %}
+                                            <div class="attend_button_container">
+                                                <button class="button button--border" type="submit" id="submitButton">Join!</button>
+                                            </div>
+                                        </form>
+                                    {% endif %}
+                                {% endif %}
+                            {% endif %}
+
+                        </div>
+                        {% if event.ends_at < now %}
+                            <p>{{ event.starts_at|timesince }} ago - {{ event.starts_at|date }}</p>
                         {% else %}
                             <time>{{ event.starts_at }} - {{ event.ends_at }}</time>
-                            <p>{{ event.remaining_spaces }} spaces left</p>
+                            {% if event.has_user_rsvp %}
+                                <p>{{ event.remaining_spaces }} spaces left - you are attending.</p>
+                            {% else %}
+                                <p>{{ event.remaining_spaces }} spaces left</p>
+                            {% endif %}
                         {% endif %}
                         <p>{{ event.location }}</p>
                         <p class="rich-text">{{ event.description }}</p>
-                    </article>
+                                            </article>
                 {% endfor %}
                 <div class="pagination">
                     <p class="pagination__readout">{{ pagination_message }}</p>
                 </div>
                 <div class="pagination">
                     {% if page_obj.has_previous %}
-                        <a class="pagination__item" href="?page=1">
+                        <a class="pagination__item" href="{% url 'event_list' when=when page=1 %}">
                             first
                         </a>
-                        <a class="pagination__item" href="?page={{ page_obj.previous_page_number }}">
+                        <a class="pagination__item" href="{% url 'event_list' when=when page=page_obj.previous_page_number %}">
                             previous
                         </a>
                     {% endif %}
@@ -57,27 +89,27 @@
                         Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}
                     </span>
                     {% if page_obj.has_next %}
-                        <a class="pagination__item" href="?page={{ page_obj.next_page_number }}">next</a>
-                        <a class="pagination__item" href="?page={{ page_obj.paginator.num_pages }}">last</a>
+                        <a class="pagination__item" href="{% url 'event_list' when=when page=page_obj.next_page_number %}">next</a>
+                        <a class="pagination__item" href="{% url 'event_list' when=when page=page_obj.paginator.num_pages %}">last</a>
                     {% endif %}
                 </div>
             </div>
             <div class="grid__item">      
                 {% if when == "past" %}
-                    <a class="active-link sidebar--link" href="{% url 'event_list' when='future' %}">
+          <a class="active-link sidebar--link" href="{% url 'event_list' when='future' page=page_obj.number %}">
                         - Past Events
                     </a>
                 {% else %}
-                    <a class="sidebar--link" href="{% url 'event_list' when='past' %}">
+                    <a class="sidebar--link" href="{% url 'event_list' when='past' page=page_obj.number %}">
                         Past Events
                     </a>
                 {% endif %} 
                 {% if when == "all" %}
-                    <a class="active-link sidebar--link" href="{% url 'event_list' when='future' %}">
+                    <a class="active-link sidebar--link" href="{% url 'event_list' when='future' page=page_obj.number %}">
                         - All Events
                     </a>
                 {% else %}
-                    <a class="sidebar--link" href="{% url 'event_list' when='all' %}">
+                    <a class="sidebar--link" href="{% url 'event_list' when='all' page=page_obj.number %}">
                         All Events
                     </a>
                 {% endif %}
