@@ -1,7 +1,8 @@
 from django.db import models
-from django.db.models import Count, F
+from django.db.models import BooleanField, Case, Count, F, Value, When
 from django.db.models.functions import Greatest
 from django.utils import timezone
+
 from users.models import User
 
 
@@ -17,6 +18,16 @@ class EventQuerySet(models.QuerySet):
                 F("maximum_attendees") - F("attendee_count"),
                 0,
             ),
+        )
+
+    def with_has_user_rsvp(self, user):
+        subquery = RSVP.objects.filter(user=user).values("event_id")
+        return self.annotate(
+            has_user_rsvp=Case(
+                When(id__in=models.Subquery(subquery), then=Value(True)),
+                default=Value(False),
+                output_field=BooleanField(),
+            )
         )
 
     def in_future(self):
@@ -36,6 +47,9 @@ class EventManager(models.Manager):
     def with_attendance_fields(self):
         return self.get_queryset().with_attendance_fields()
 
+    def with_has_user_rsvp(self, user):
+        return self.get_queryset().with_has_user_rsvp(user)
+
     def in_future(self):
         return self.get_queryset().in_future()
 
@@ -48,6 +62,9 @@ class Event(models.Model):
     title = models.CharField(max_length=200)
     organiser = models.ForeignKey(
         User, on_delete=models.CASCADE, related_name="is_organising"
+    )
+    contact = models.ForeignKey(
+        User, on_delete=models.CASCADE, related_name="is_contact"
     )
     maximum_attendees = models.IntegerField()
     respondents = models.ManyToManyField(User, through="RSVP")
@@ -63,6 +80,12 @@ class Event(models.Model):
                 name="end_datetime_after_start_datetime",
             )
         ]
+
+    @property
+    def accepting_attendees(self):
+        remaining_spaces = max(self.maximum_attendees - self.get_attendee_count(), 0)
+
+        return self.ends_at > timezone.now() and remaining_spaces > 0
 
     def get_attendees(self):
         subquery = RSVP.objects.filter(event=self).values("user_id")
