@@ -1,13 +1,15 @@
 from datetime import datetime
 
 from django.core.paginator import Paginator
+from django.db import transaction
 from django.db.models import Max, Min
 from django.db.models.functions import Coalesce
 from django.http import (
     Http404,
+    HttpResponseBadRequest,
     HttpResponseForbidden,
     HttpResponseRedirect,
-    HttpResponseBadRequest,
+    JsonResponse,
 )
 from django.shortcuts import get_object_or_404, render
 from django.utils import timezone
@@ -104,22 +106,76 @@ def event_detail(request, pk):
 def manage_event_attendance(request, pk, action):
     if request.user.is_authenticated:
         if request.method == "POST":
-            redirect_target = request.POST.get("redirect_target", "/")
-            user_id = request.user.id
-            event = get_object_or_404(Event, id=pk)
-            user = get_object_or_404(User, id=user_id)
+            with transaction.atomic():
+                user = get_object_or_404(User, id=request.user.id)
 
-            if action == "attend":
-                RSVP.objects.get_or_create(event=event, user=user)
-
-            elif action == "unattend":
                 try:
-                    rsvp = RSVP.objects.get(event=event, user=user)
-                    rsvp.delete()
-                except RSVP.DoesNotExist:
-                    pass
-            return HttpResponseRedirect(redirect_target)
+                    event = Event.objects.select_for_update().get(pk=pk)
+                except Event.DoesNotExist:
+                    raise Http404(
+                        "Event not found - this may have been deleted elsewhere"
+                    )
+
+                if action == "attend":
+                    if event.accepting_attendees:
+                        _, rsvp_created = RSVP.objects.get_or_create(
+                            event=event, user=user
+                        )
+                        if rsvp_created:
+                            data = {
+                                "success": True,
+                            }
+                            status = 200
+                        else:
+                            data = {
+                                "success": False,
+                                "error_message": "You are already attending this Event - this may have been updated elsewhere",
+                            }
+                            status = 409
+                    else:
+                        data = {
+                            "success": False,
+                            "error_message": "This Event is no longer accepting attendees - it could be full, or have ended.",
+                        }
+                        status = 409
+                elif action == "unattend":
+                    try:
+                        rsvp = RSVP.objects.get(event=event, user=user)
+                        rsvp.delete()
+                        data = {
+                            "success": True,
+                        }
+                        status = 200
+                    except RSVP.DoesNotExist:
+                        data = {
+                            "success": False,
+                            "error_message": "You are not attending this event - this may have been updated elsewhere.",
+                        }
+                        status = 409
+
+            if request.accepts("text/html"):
+                redirect_target = request.POST.get("redirect_target", "/")
+                return HttpResponseRedirect(redirect_target)
+            elif request.accepts("application/json"):
+                return JsonResponse(data, status=status)
+
         else:
-            return HttpResponseBadRequest("Invalid request method")
+            error_message = "Invalid request method"
+            if request.accepts("text/html"):
+                return HttpResponseBadRequest(error_message)
+            elif request.accepts("application/json"):
+                data = {
+                    "success": False,
+                    "error_message": error_message,
+                }
+                return JsonResponse(data, status=400)
     else:
-        return HttpResponseForbidden("Unauthorised to modify Event attendance")
+        error_message = "Unauthorised to modify Event attendance"
+        if request.accepts("text/html"):
+            return HttpResponseForbidden(error_message)
+        elif request.accepts("application/json"):
+            data = {
+                "success": False,
+                "error_message": error_message,
+            }
+            return JsonResponse(data, status=403)
