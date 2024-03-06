@@ -842,6 +842,11 @@ blockquote {
   margin: 0;
 }
 
+.sidebar--link {
+  color: var(--color--indigo);
+  display: block;
+  margin-bottom: 10px
+}
 /* FEB CHANGES */
 
 .layout {
@@ -887,7 +892,6 @@ blockquote {
   text-align: center;m
 }
 
-
 .layout__article {
   margin-bottom: 0px;
 }
@@ -898,8 +902,7 @@ blockquote {
 
 .sidebar--link {
   display: block;
-  margin-bottom: 10px;
-  color: var(--color--indigo);
+  margin-bottom: 10px
 }
 
 .active-link {
@@ -907,10 +910,12 @@ blockquote {
   font-weight: bold;
 }
 
+
 .pagination {
   display: flex;
   justify-content: center;
 }
+
 
 .pagination__readout {
   color: var(--color--light-grey-accessible);
@@ -922,4 +927,74 @@ blockquote {
 .pagination__item {
   font-size: 1.2em;
   margin: 15px;
+}
+
+
+.subtitle{
+  font-size: 0.8em;
+  margin: 0;
+  margin-bottom: 2px;
+  color: var(--color--light-grey-accessible);
+}
+
+hr{
+  border-color: var(--color--light-grey-accessible);
+  border-color: #ffffff;
+}
+
+
+.attend_button_container{
+  display: flex;
+  justify-content: end;
+}
+
+.title_attending_container{
+  display: flex;
+  justify-content: space-between
+}
+
+.attendance_record{
+
+  color: var(--color--light-grey-accessible);
+  font-style: italic;
+  margin: 0;
+}
+
+.unattend_button{
+  color: var(--color--light-grey-accessible);
+  border-color: var(--color--white);
+
+}
+
+.detail_form_container{
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+
+.loading {
+  display: inline-block;
+  width: 50px;
+  height: 50px;
+  border: 3px solid var(--color--coral);
+  border-radius: 50%;
+  border-top-color: #fff;
+  animation: spin 1s ease-in-out infinite;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+@-webkit-keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+.hidden {
+  display: none;
+}
+
+.error {
+  color: var(--color--coral);
+  padding-top: 10px;
 }
