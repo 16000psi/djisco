@@ -16,6 +16,7 @@ class EventTestCase(TestCase):
         cls.event_01 = Event.objects.create(
             title="future with space",
             organiser=new_user_01,
+            contact=new_user_01,
             starts_at=timezone.make_aware(datetime(2035, 10, 10, 14, 30, 0)),
             ends_at=timezone.make_aware(datetime(2036, 10, 10, 15, 30, 0)),
             location="here",
@@ -25,6 +26,7 @@ class EventTestCase(TestCase):
         cls.event_02 = Event.objects.create(
             title="future without space",
             organiser=new_user_02,
+            contact=new_user_02,
             starts_at=timezone.make_aware(datetime(2035, 10, 10, 14, 30, 0)),
             ends_at=timezone.make_aware(datetime(2036, 10, 10, 15, 30, 0)),
             location="here",
@@ -34,6 +36,7 @@ class EventTestCase(TestCase):
         cls.event_03 = Event.objects.create(
             title="past with space",
             organiser=new_user_02,
+            contact=new_user_02,
             starts_at=timezone.make_aware(datetime(1025, 10, 10, 14, 30, 0)),
             ends_at=timezone.make_aware(datetime(1026, 10, 10, 15, 30, 0)),
             location="here",

@@ -25,6 +25,7 @@ class DetailTestCase(TestCase):
         cls.event = Event.objects.create(
             title="event01",
             organiser=new_user,
+            contact=new_user,
             starts_at=timezone.make_aware(datetime(2025, 10, 10, 14, 30, 0)),
             ends_at=timezone.make_aware(datetime(2026, 10, 10, 15, 30, 0)),
             location="here",
@@ -46,6 +47,7 @@ class GetAttendeeAggregateTestCase(TestCase):
         cls.event_01 = Event.objects.create(
             title="event01",
             organiser=new_user,
+            contact=new_user,
             starts_at=timezone.make_aware(datetime(2025, 10, 10, 14, 30, 0)),
             ends_at=timezone.make_aware(datetime(2026, 10, 10, 15, 30, 0)),
             location="here",
@@ -55,6 +57,7 @@ class GetAttendeeAggregateTestCase(TestCase):
         cls.event_02 = Event.objects.create(
             title="event01",
             organiser=new_user,
+            contact=new_user,
             starts_at=timezone.make_aware(datetime(2025, 10, 10, 14, 30, 0)),
             ends_at=timezone.make_aware(datetime(2026, 10, 10, 15, 30, 0)),
             location="here",
@@ -164,6 +167,7 @@ class ManageEventAttendanceTestCase(TestCase):
         self.event_01 = Event.objects.create(
             title="event01",
             organiser=self.user_01,
+            contact=self.user_01,
             starts_at=timezone.make_aware(datetime(2025, 10, 10, 14, 30, 0)),
             ends_at=timezone.make_aware(datetime(2026, 10, 10, 15, 30, 0)),
             location="here",
