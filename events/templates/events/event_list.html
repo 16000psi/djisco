@@ -1,4 +1,5 @@
 {% extends "base.html" %}
+{% load static %}
 {% block content %}
     <div class="layout">
         <div class="grid grid--sidebar">
@@ -12,7 +13,7 @@
                         </a>
                     {% endif %}
                     <span aria-label="page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}
-                        " class="title_bar__pagination__item">
+                                     " class="title_bar__pagination__item">
                         {{ page_obj.number }} / {{ page_obj.paginator.num_pages }}
                     </span>
                     {% if page_obj.has_next %}
@@ -27,33 +28,55 @@
             <div>
                 <p class="subtitle">We have events ranging from {{ attendees_min }} to {{ attendees_max }} attendees.</p>
                 {% for event in page_obj %}
-                    <article class="card layout__article">
+                    <article data-event-card class="card layout__article">
                         <div class="title_attending_container">
                             <a href="{% url 'event_detail' pk=event.id %}">
                                 <h3>{{ event.title }}</h3>
-                            </a>        
+                            </a>
                             {% if user.is_authenticated %}
-                                {% if event.has_user_rsvp %}
+                                {% if event.has_user_rsvp or event.accepting_attendees %}
                                     {% if event.ends_at > now %}
-                                        <form id="unattend_button" method="post" action="{% url 'event_attendance' pk=event.id action='unattend' %}">
-                                            <input type="hidden" name="redirect_target" value="{{ request.path }}">
+                                        <form data-attendance-form method="post"
+                                              {% if event.has_user_rsvp %}
+                                                  action="{% url 'event_attendance' pk=event.id action='unattend' %}"
+                                                  data-form-action="unattend"
+                                              {% else %}
+                                                  action="{% url 'event_attendance' pk=event.id action='attend' %}"
+                                                  data-form-action="attend"
+                                              {% endif %}
+                                              data-unattend-url="{% url 'event_attendance' pk=event.id action='unattend' %}"
+                                              data-attend-url="{% url 'event_attendance' pk=event.id action='attend' %}"
+                                              data-button-text-unattend="Cancel"
+                                              data-button-text-attend="Join!"
+                                              data-attendee-count="{{ event.attendee_count }}"
+                                              data-maximum-attendees="{{ event.maximum_attendees }}"
+                                        >
                                             {% csrf_token %}
+                                            <input type="hidden" name="redirect_target" value="{{ request.path }}">
+                                            <input type="hidden" name="maximum_attendees" value="{{ event.maximum_attendees }}">
                                             <div class="attend_button_container">
-                                                <button class="button button--border unattend_button" type="submit" id="submitButton">Cancel</button>
+                                                <div data-loading class="loading hidden"></div>
+                                                <button data-attendance-button
+                                                        class="button button--border
+                                                               {% if event.has_user_rsvp %}
+                                                                   unattend_button
+                                                               {% else %}
+                                                                   attend_button
+                                                               {% endif %}"
+                                                        type="submit"
+                                                >
+                                                    {% if event.has_user_rsvp %}
+                                                        Cancel
+                                                    {% else %}
+                                                        Join!
+                                                    {% endif %}
+                                                </button>
                                             </div>
                                         </form>
                                     {% else %}
-                                        <p class="attendance_record">You attended this Event</p>
-                                    {% endif %}
-                                {% else %}
-                                    {% if event.accepting_attendees %}
-                                        <form id="attend_button" method="post" action="{% url 'event_attendance' pk=event.id action='attend' %}">
-                                            <input type="hidden" name="redirect_target" value="{{ request.path }}">
-                                            {% csrf_token %}
-                                            <div class="attend_button_container">
-                                                <button class="button button--border" type="submit" id="submitButton">Join!</button>
-                                            </div>
-                                        </form>
+                                        {% if event.has_user_rsvp %}
+                                            <p class="attendance_record">You attended this Event!</p>
+                                        {% endif %}
                                     {% endif %}
                                 {% endif %}
                             {% endif %}
@@ -63,15 +86,20 @@
                             <p>{{ event.starts_at|timesince }} ago - {{ event.starts_at|date }}</p>
                         {% else %}
                             <time>{{ event.starts_at }} - {{ event.ends_at }}</time>
-                            {% if event.has_user_rsvp %}
-                                <p>{{ event.remaining_spaces }} spaces left - you are attending.</p>
-                            {% else %}
-                                <p>{{ event.remaining_spaces }} spaces left</p>
-                            {% endif %}
+                            <p data-attendance-description
+                               data-attendance-description-type="list"
+                            >
+                                {% if event.has_user_rsvp %}
+                                    {{ event.remaining_spaces }} spaces left - you are attending
+                                {% else %}
+                                    {{ event.remaining_spaces }} spaces left
+                                {% endif %}
+                            </p>
                         {% endif %}
-                        <p>{{ event.location }}</p>
+                        <p >{{ event.location }}</p>
                         <p class="rich-text">{{ event.description }}</p>
-                                            </article>
+                        <p data-error class="error hidden" aria-live="polite"></p>
+                    </article>
                 {% endfor %}
                 <div class="pagination">
                     <p class="pagination__readout">{{ pagination_message }}</p>
@@ -94,16 +122,16 @@
                     {% endif %}
                 </div>
             </div>
-            <div class="grid__item">      
+            <div class="grid__item">
                 {% if when == "past" %}
-          <a class="active-link sidebar--link" href="{% url 'event_list' when='future' page=page_obj.number %}">
+                    <a class="active-link sidebar--link" href="{% url 'event_list' when='future' page=page_obj.number %}">
                         - Past Events
                     </a>
                 {% else %}
                     <a class="sidebar--link" href="{% url 'event_list' when='past' page=page_obj.number %}">
                         Past Events
                     </a>
-                {% endif %} 
+                {% endif %}
                 {% if when == "all" %}
                     <a class="active-link sidebar--link" href="{% url 'event_list' when='future' page=page_obj.number %}">
                         - All Events
@@ -119,3 +147,6 @@
 
     </div>
 {% endblock content %}
+{% block javascript %}
+    <script src="{% static 'scripts/attendance-form.js' %}"></script>
+{% endblock javascript %}
