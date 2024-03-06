@@ -1,4 +1,5 @@
 {% extends "base.html" %}
+{% load static %}
 {% block title %}Djisco - {{ event.title }}{% endblock title %}
 {% block content %}
     {% if event.ends_at < now %}
@@ -6,7 +7,7 @@
     {% else %}
         <p><a href="{% url 'event_list' %}">Home</a>&nbsp;&gt;&nbsp;{{ event.title }}</p>
     {% endif %}
-    <article class="layout__single">
+    <article data-event-card class="layout__single">
         <h2>{{ event.title }}</h2>
         <hr>
         <h4>Date And Time</h4>
@@ -27,11 +28,15 @@
             <p>{{ event.attendee_count }} people attended out of {{ event.maximum_attendees }} possible spaces</p>
         {% else %}
             <h4>Attendance</h4>
-            {% if event.has_user_rsvp %}
-                <p>{{ event.attendee_count }} attendee{{ event.attendee_count|pluralize:"s" }} out of {{ event.maximum_attendees }} spaces filled - {{ event.remaining_spaces }} spaces left - you are attending</p>
-            {% else %}
-                <p>{{ event.attendee_count }} attendee{{ event.attendee_count|pluralize:"s" }} out of {{ event.maximum_attendees }} spaces filled - {{ event.remaining_spaces }} spaces left</p>
-            {% endif %}
+            <p data-attendance-description
+               data-attendance-description-type="detail"
+            >
+                {% if event.has_user_rsvp %}
+                    {{ event.attendee_count }} attendee{{ event.attendee_count|pluralize:"s" }} out of {{ event.maximum_attendees }} spaces filled - {{ event.remaining_spaces }} spaces left - you are attending
+                {% else %}
+                    {{ event.attendee_count }} attendee{{ event.attendee_count|pluralize:"s" }} out of {{ event.maximum_attendees }} spaces filled - {{ event.remaining_spaces }} spaces left
+                {% endif %}
+            </p>
         {% endif %}
         <hr>
         <h4>Description</h4>
@@ -39,31 +44,60 @@
         <hr>
         <div class="detail_form_container">
             {% if user.is_authenticated %}
-                {% if event.has_user_rsvp %}
+                {% if event.has_user_rsvp or event.accepting_attendees %}
                     {% if event.ends_at > now %}
-                        <form id="unattend-button" method="post" action="{% url 'event_attendance' pk=event.id action='unattend' %}">
+
+                        <form data-attendance-form method="post"
+                              {% if event.has_user_rsvp %}
+                                  action="{% url 'event_attendance' pk=event.id action='unattend' %}"
+                                  data-form-action="unattend"
+                              {% else %}
+                                  action="{% url 'event_attendance' pk=event.id action='attend' %}"
+                                  data-form-action="attend"
+                              {% endif %}
+                              data-button-text-unattend="Cancel your attendance"
+                              data-button-text-attend="Join this Event!"
+                              data-unattend-url="{% url 'event_attendance' pk=event.id action='unattend' %}"
+                              data-attend-url="{% url 'event_attendance' pk=event.id action='attend' %}"
+                              data-attendee-count="{{ event.attendee_count }}"
+                              data-maximum-attendees="{{ event.maximum_attendees }}"
+                        >
+
                             {% csrf_token %}
                             <input type="hidden" name="redirect_target" value="{{ request.path }}">
                             <div class="attend_button_container">
-                                <button class="button button--border unattend_button" type="submit" id="submitButton">Cancel your attendance</button>
+                                <div data-loading class="loading hidden"></div>
+
+                                <button data-attendance-button
+                                        class="button button--border
+                                               {% if event.has_user_rsvp %}
+                                                   unattend_button
+                                               {% else %}
+                                                   attend_button
+                                               {% endif %}"
+                                        type="submit"
+                                >
+                                    {% if event.has_user_rsvp %}
+                                        Cancel your attendance
+                                    {% else %}
+                                        Join this Event!
+                                    {% endif %}
+                                </button>
+
                             </div>
                         </form>
                     {% else %}
-                        <p class="attendance_record">You attended this Event!</p>
-                    {% endif %}
-                {% else %}
-                    {% if event.accepting_attendees %}
-                        <form id="attend-button" method="post" action="{% url 'event_attendance' pk=event.id action='attend' %}">
-                            {% csrf_token %}
-                            <input type="hidden" name="redirect_target" value="{{ request.path }}">
-                            <div class="attend_button_container">
-                                <button class="button button--border" type="submit" id="submitButton">Join this Event!</button>
-                            </div>
-                        </form>
+                        {% if event.has_user_rsvp %}
+                            <p class="attendance_record">You attended this Event!</p>
+                        {% endif %}
                     {% endif %}
                 {% endif %}
             {% endif %}
+            <p data-error class="error hidden" aria-live="polite"></p>
         </div>
     </article>
 
 {% endblock content %}
+{% block javascript %}
+    <script src="{% static 'scripts/attendance-form.js' %}"></script>
+{% endblock javascript %}
