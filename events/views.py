@@ -1,8 +1,8 @@
 from datetime import datetime
 
 from django.core.paginator import Paginator
-from django.db import transaction
-from django.db.models import Max, Min
+from django.db import models, transaction
+from django.db.models import Count, Max, Min, Q
 from django.db.models.functions import Coalesce
 from django.http import (
     Http404,
@@ -16,7 +16,7 @@ from django.utils import timezone
 
 from users.models import User
 
-from .models import RSVP, Event
+from .models import RSVP, ContributionItem, ContributionRequirement, Event
 
 
 def get_events(request, when="all"):
@@ -96,7 +96,20 @@ def event_list(request, when="future", page=1):
 
 def event_detail(request, pk):
     event = get_object_or_404(get_events(request), pk=pk)
+    subquery = ContributionRequirement.objects.filter(event=event).values("contribution_item_id")
+    contribution_requirements = ContributionItem.objects.filter(
+        id__in=models.Subquery(subquery)
+    ).annotate(
+        requirements_count=Count(
+            "contributionrequirement", filter=Q(contributionrequirement__event=event)
+        ),
+        commitments_count=Count(
+            "contributionrequirement__contributioncommitment", filter=Q(contributionrequirement__event=event)
+        ),
+    )
+
     context = {
+        "contribution_requirements": contribution_requirements,
         "event": event,
         "now": timezone.make_aware(datetime.now()),
     }
