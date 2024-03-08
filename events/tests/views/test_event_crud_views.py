@@ -1,12 +1,13 @@
 from datetime import datetime
 from http import HTTPStatus
+from unittest.mock import ANY, patch
 
 from django.contrib import messages as django_messages
 from django.test import TestCase
 from django.urls import reverse
 from django.utils import timezone
-
 from events.models import RSVP, Event
+
 from users.models import User
 
 
@@ -96,6 +97,87 @@ class EventCreateViewTestCase(TestCase):
             with self.subTest(field=field):
                 actual_value = getattr(event, field)
                 self.assertEqual(actual_value, expected_value)
+
+    def test_starts_at_lt_now_invalid(self):
+        """
+        Is is not possible to create a event that is in the past
+
+        If the user attempts to create a event where the value of
+        starts_at is less than the current datetime, there should be
+        no change to the database and the view should not redirect.
+        """
+
+        new_event_in_past = {
+            **self.event_data,
+            "starts_at": timezone.now() - timezone.timedelta(days=1),
+            "ends_at": timezone.now() - timezone.timedelta(days=0.5),
+        }
+
+        self.client.force_login(self.new_user)
+        response = self.client.post(self.url, new_event_in_past)
+
+        self.assertEqual(Event.objects.count(), 0)
+        self.assertEqual(RSVP.objects.count(), 0)
+        self.assertEqual(response.status_code, HTTPStatus.OK)
+
+    def test_ends_at_lt_starts_at_invalid(self):
+        """
+        Is is not possible to create a event where ends_at is < starts_at
+
+        If the user attempts to create a event where the value of
+        starts_at is less than starts_at, there should be
+        no change to the database and the view should not redirect.
+
+        """
+
+        new_event_ends_before_starts = {
+            **self.event_data,
+            "starts_at": timezone.now() + timezone.timedelta(hours=2),
+            "ends_at": timezone.now() + timezone.timedelta(hours=1),
+        }
+
+        self.client.force_login(self.new_user)
+        response = self.client.post(self.url, new_event_ends_before_starts)
+
+        self.assertEqual(Event.objects.count(), 0)
+        self.assertEqual(RSVP.objects.count(), 0)
+        self.assertEqual(response.status_code, HTTPStatus.OK)
+
+    def test_max_attendees_lt_one_is_invalid(self):
+        """
+        Is is not possible to create a event with < 1 maximum_attendees
+
+        If the user attempts to create a event where the value of
+        maximum_attendees is less than one, there should be
+        no change to the database and the view should not redirect.
+        """
+
+        new_event_zero_max_attendees = {
+            **self.event_data,
+            "maximum_attendees": 0,
+        }
+
+        self.client.force_login(self.new_user)
+        response = self.client.post(self.url, new_event_zero_max_attendees)
+
+        self.assertEqual(Event.objects.count(), 0)
+        self.assertEqual(RSVP.objects.count(), 0)
+        self.assertEqual(response.status_code, HTTPStatus.OK)
+
+    def test_view_uses_form_with_is_create_true(self):
+        """
+        The create view should use the EventForm with is_create set to True
+
+        EventForm uses an is_create boolean flag as part of validation. If
+        set to true then the form will not validate for events in the past
+        (this behaviour is what we want when creating a event, but not updating
+        one).  We need is_create to be set to True for the create view so
+        that the user cannot create a event in the past.
+        """
+        self.client.force_login(self.new_user)
+        response = self.client.get(self.url)
+        form = response.context["form"]
+        self.assertTrue(form.is_create)
 
     def test_form_populated_with_correct_contact_value(self):
         """
@@ -230,13 +312,127 @@ class EventUpdateViewTestCase(TestCase):
         messages = list(django_messages.get_messages(response.wsgi_request))
         self.assertEqual(len(messages), 0)
 
+    def test_ends_at_lt_now_valid(self):
+        """
+        Submitting an update view form with a starts_at lt < now is valid
+
+        Unlike the event_create_view, submitting to the event_update_view
+        a event with a starts_at date in the past should result in the
+        event record in question being updated, as we want the user to be
+        able to edit events from the past.
+        """
+
+        edited_past_event_attributes = {
+            **self.event_data,
+            "starts_at": timezone.now() - timezone.timedelta(hours=2),
+            "ends_at": timezone.now() - timezone.timedelta(hours=1),
+        }
+
+        self.client.force_login(self.new_user)
+        self.client.post(self.url, edited_past_event_attributes)
+
+        possibly_updated_event = Event.objects.first()
+
+        for field_name, expected_val in edited_past_event_attributes.items():
+            with self.subTest(field_name=field_name):
+                if field_name != "contact":
+                    self.assertEqual(
+                        getattr(possibly_updated_event, field_name),
+                        expected_val,
+                    )
+                else:
+                    self.assertEqual(
+                        getattr(possibly_updated_event, "contact").pk,
+                        expected_val,
+                    )
+
+    def test_ends_at_lt_starts_at_invalid(self):
+        """
+        Is is not possible to update a event where ends_at is < starts_at
+
+        If the user attempts to update a event where the value of
+        starts_at is less than starts_at, there should be
+        no change to the event record and the view should not redirect.
+
+        """
+
+        new_event_ends_before_starts = {
+            **self.event_data,
+            "starts_at": timezone.now() + timezone.timedelta(hours=2),
+            "ends_at": timezone.now() + timezone.timedelta(hours=1),
+        }
+
+        self.client.force_login(self.new_user)
+        response = self.client.post(self.url, new_event_ends_before_starts)
+
+        self.assertEqual(response.status_code, HTTPStatus.OK)
+
+        possibly_updated_event = Event.objects.first()
+
+        for field in self.event._meta.fields:
+            field_name = field.name
+            with self.subTest(field_name=field_name):
+                self.assertEqual(
+                    getattr(possibly_updated_event, field_name),
+                    getattr(self.event, field_name),
+                )
+
+    def test_max_attendees_lt_one_is_invalid(self):
+        """
+        Is is not possible to update a event with < 1 maximum_attendees
+
+        If the user attempts to update a event where the value of
+        maximum_attendees is less than one, there should be
+        no change to the event record and the view should not redirect.
+        """
+
+        new_event_zero_max_attendees = {
+            **self.event_data,
+            "maximum_attendees": 0,
+        }
+
+        self.client.force_login(self.new_user)
+        response = self.client.post(self.url, new_event_zero_max_attendees)
+
+        self.assertEqual(response.status_code, HTTPStatus.OK)
+
+        possibly_updated_event = Event.objects.first()
+
+        for field in self.event._meta.fields:
+            field_name = field.name
+            with self.subTest(field_name=field_name):
+                self.assertEqual(
+                    getattr(possibly_updated_event, field_name),
+                    getattr(self.event, field_name),
+                )
+
+    def test_view_uses_form_with_is_create_false(self):
+        """
+        The update view should use the EventForm with is_create set to False
+
+        EventForm uses an is_create boolean flag as part of validation. If
+        set to true then the form will not validate for events in the past
+        (this behaviour is what we want when creating a event, but not updating
+        one).  We need is_create to be set to false for the update view during
+        post requests so that that we can edit events from the past.
+        """
+        with patch("events.views.EventForm") as MockEventForm:
+            instance = MockEventForm.return_value
+            instance.is_valid.return_value = True
+            instance.has_changed.return_value = True
+
+            self.client.force_login(self.new_user)
+            self.client.post(self.url, self.event_data)
+
+            MockEventForm.assert_called_once_with(ANY, instance=ANY, is_create=False)
+
     def test_form_populated_with_correct_event_values(self):
         """
         The update form should be rendered with the correct event data
         """
         expected_event_data = {
             "title": "event01",
-            "contact": self.new_user,
+            "contact": self.new_user.id,
             "starts_at": datetime(2025, 10, 10, 14, 30, tzinfo=timezone.utc),
             "ends_at": datetime(2026, 10, 10, 15, 30, tzinfo=timezone.utc),
             "location": "here",

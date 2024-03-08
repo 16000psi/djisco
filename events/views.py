@@ -100,7 +100,9 @@ def event_list(request, when="future", page=1):
 
 def event_detail(request, pk):
     event = get_object_or_404(get_events(request), pk=pk)
-    subquery = ContributionRequirement.objects.filter(event=event).values("contribution_item_id")
+    subquery = ContributionRequirement.objects.filter(event=event).values(
+        "contribution_item_id"
+    )
     contribution_requirements = ContributionItem.objects.filter(
         id__in=models.Subquery(subquery)
     ).annotate(
@@ -108,7 +110,8 @@ def event_detail(request, pk):
             "contributionrequirement", filter=Q(contributionrequirement__event=event)
         ),
         commitments_count=Count(
-            "contributionrequirement__contributioncommitment", filter=Q(contributionrequirement__event=event)
+            "contributionrequirement__contributioncommitment",
+            filter=Q(contributionrequirement__event=event),
         ),
     )
 
@@ -201,9 +204,10 @@ def manage_event_attendance(request, pk, action):
 @login_required
 def event_create_view(request):
     if request.method == "POST":
-        form = EventForm(request.POST or None)
+        form = EventForm(request.POST)
         if form.is_valid():
-            event = Event(**form.cleaned_data, organiser=request.user)
+            event = form.save(commit=False)
+            event.organiser = request.user
             event.save()
             RSVP.objects.create(user=request.user, event=event)
             messages.success(request, "Event created successfully!")
@@ -219,33 +223,20 @@ def event_create_view(request):
 
 @login_required
 def event_update_view(request, pk):
-    event = Event.objects.get(pk=pk)
+    event = get_object_or_404(Event, pk=pk)
     if event.organiser != request.user:
         messages.warning(request, "You cannot modify another user's event.")
         return HttpResponseRedirect(reverse("event_list"))
 
-    initial_data = {
-        "title": event.title,
-        "contact": event.contact,
-        "maximum_attendees": event.maximum_attendees,
-        "starts_at": event.starts_at,
-        "ends_at": event.ends_at,
-        "location": event.location,
-        "description": event.description,
-    }
-
     if request.method == "POST":
-        form = EventForm(request.POST, initial=initial_data)
+        form = EventForm(request.POST, instance=event, is_create=False)
         if form.is_valid():
-            for field, value in form.cleaned_data.items():
-                setattr(event, field, value)
-            event.save()
             if form.has_changed():
+                form.save()
                 messages.success(request, "Event modified successfully!")
             return redirect("event_detail", pk=event.id)
-
     else:
-        form = EventForm(initial=initial_data)
+        form = EventForm(instance=event)
 
     return render(
         request,
@@ -273,6 +264,4 @@ def event_delete_view(request, pk):
             return redirect("event_list")
     else:
         form = DeleteEventForm()
-    return render(
-        request, "events/event_delete.html", {"form": form, "event": event}
-    )
+    return render(request, "events/event_delete.html", {"form": form, "event": event})

@@ -1,24 +1,47 @@
 from django import forms
+from django.utils import timezone
+from events.models import Event
 
-from users.models import User
 
+class EventForm(forms.ModelForm):
+    class Meta:
+        model = Event
+        fields = [
+            "title",
+            "contact",
+            "maximum_attendees",
+            "starts_at",
+            "ends_at",
+            "location",
+            "description",
+        ]
+        widgets = {
+            "starts_at": forms.DateTimeInput(attrs={"type": "datetime-local"}),
+            "ends_at": forms.DateTimeInput(attrs={"type": "datetime-local"}),
+            "description": forms.Textarea(attrs={"rows": 5}),
+            "location": forms.Textarea(attrs={"rows": 5}),
+        }
 
-class EventForm(forms.Form):
-    title = forms.CharField(max_length=200)
-    contact = forms.ModelChoiceField(queryset=User.objects.all())
-    maximum_attendees = forms.IntegerField()
-    starts_at = forms.DateTimeField(
-        widget=forms.DateTimeInput(attrs={"type": "datetime-local"})
-    )
-    ends_at = forms.DateTimeField(
-        widget=forms.DateTimeInput(attrs={"type": "datetime-local"})
-    )
-    location = forms.CharField(max_length=400)
-    description = forms.CharField(
-        widget=forms.Textarea(attrs={"rows": 5}),
-        max_length=2000,
-        required=False,
-    )
+    def __init__(self, *args, **kwargs):
+        self.is_create = kwargs.pop("is_create", True)
+        super(EventForm, self).__init__(*args, **kwargs)
+
+    def clean_starts_at(self):
+        starts_at = self.cleaned_data["starts_at"]
+        if self.is_create and starts_at < timezone.now():
+            raise forms.ValidationError(
+                "You cannot create a event in the past!", code="in_past"
+            )
+        return starts_at
+
+    def clean_maximum_attendees(self):
+        maximum_attendees = self.cleaned_data.get("maximum_attendees")
+        if maximum_attendees < 1:
+            raise forms.ValidationError(
+                "You must allow for at least one attendee!",
+                code="max_attendees_lt_one",
+            )
+        return maximum_attendees
 
     def clean(self):
         cleaned_data = super().clean()
@@ -27,7 +50,13 @@ class EventForm(forms.Form):
 
         if starts_at and ends_at:
             if ends_at < starts_at:
-                self.add_error("ends_at", "Events cannot end before they have begun!")
+                self.add_error(
+                    "ends_at",
+                    forms.ValidationError(
+                        "Events cannot end before they have begun!",
+                        code="ends_before_starts",
+                    ),
+                )
 
         return cleaned_data
 
