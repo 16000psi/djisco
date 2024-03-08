@@ -1,0 +1,25 @@
+{% extends "base.html" %}
+
+{% block content %}
+  <div class="layout__single">
+    <h2>Delete Event</h2>
+    <form method="post">
+      {% csrf_token %}
+      <div class="form-group">
+        <label for="{{ form.confirm.id_for_label }}">Confirmation</label>
+        {{ form.confirm }}
+        <small id="{{ form.confirm.id_for_label }}Help" class="form-text text-muted">Enter 'DELETE' to confirm deletion</small>
+        {% if form.confirm.errors %}
+          <div class="error" role="alert">
+            {{ form.confirm.errors }}
+          </div>
+        {% endif %}
+      </div>
+      <div class="delete-button-container">
+        <button type="submit" class="button button--secondary">Delete</button>
+        <a href="{% url 'event_detail' pk=event.id %}" class="button button--cancel">Cancel</a>
+      </div>
+
+    </form>
+  </div>
+{% endblock content %}

@@ -1,0 +1,45 @@
+{% extends "base.html" %}
+
+{% block content %}
+  <div class="layout__single">
+    <h2>{{ title }}</h2>
+    <form method="post">
+      {% csrf_token %}
+      <div class="form-group">
+        <label for="{{ form.title.id_for_label }}">Title</label>
+        {{ form.title }}
+      </div>
+      <div class="form-group">
+        <label for="{{ form.contact.id_for_label }}">Contact</label>
+        {{ form.contact }}
+      </div>
+      <div class="form-group">
+        <label for="{{ form.maximum_attendees.id_for_label }}">Maximum Attendees</label>
+        {{ form.maximum_attendees }}
+      </div>
+      <div class="form-group">
+        <label for="{{ form.starts_at.id_for_label }}">Starts At</label>
+        {{ form.starts_at }}
+      </div>
+      <div class="form-group">
+        <label for="{{ form.ends_at.id_for_label }}">Ends At</label>
+        {{ form.ends_at }}
+        <div class="error" role="alert">
+          {{ form.ends_at.errors }}
+        </div>
+      </div>
+      <div class="form-group">
+        <label for="{{ form.location.id_for_label }}">Location</label>
+        {{ form.location }}
+      </div>
+      <div class="form-group">
+        <label for="{{ form.description.id_for_label }}">Description</label>
+        {{ form.description }}
+      </div>
+      <div class="delete-button-container">
+        <button type="submit" class="button button--secondary">{{ submit_text }}</button>
+        <a href="{% url 'event_list' %}" class="button button--cancel">Cancel</a>
+      </div>
+    </form>
+  </div>
+{% endblock content %}
