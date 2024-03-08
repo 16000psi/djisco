@@ -1,5 +1,7 @@
 from datetime import datetime
 
+from django.contrib import messages
+from django.contrib.auth.decorators import login_required
 from django.core.paginator import Paginator
 from django.db import models, transaction
 from django.db.models import Count, Max, Min, Q
@@ -11,11 +13,13 @@ from django.http import (
     HttpResponseRedirect,
     JsonResponse,
 )
-from django.shortcuts import get_object_or_404, render
+from django.shortcuts import get_object_or_404, redirect, render
+from django.urls import reverse
 from django.utils import timezone
 
 from users.models import User
 
+from .forms import DeleteEventForm, EventForm
 from .models import RSVP, ContributionItem, ContributionRequirement, Event
 
 
@@ -192,3 +196,83 @@ def manage_event_attendance(request, pk, action):
                 "error_message": error_message,
             }
             return JsonResponse(data, status=403)
+
+
+@login_required
+def event_create_view(request):
+    if request.method == "POST":
+        form = EventForm(request.POST or None)
+        if form.is_valid():
+            event = Event(**form.cleaned_data, organiser=request.user)
+            event.save()
+            RSVP.objects.create(user=request.user, event=event)
+            messages.success(request, "Event created successfully!")
+            return redirect("event_detail", pk=event.id)
+    else:
+        form = EventForm(initial={"contact": request.user})
+    return render(
+        request,
+        "events/event_form.html",
+        {"form": form, "title": "Create Event", "submit_text": "Create new event"},
+    )
+
+
+@login_required
+def event_update_view(request, pk):
+    event = Event.objects.get(pk=pk)
+    if event.organiser != request.user:
+        messages.warning(request, "You cannot modify another user's event.")
+        return HttpResponseRedirect(reverse("event_list"))
+
+    initial_data = {
+        "title": event.title,
+        "contact": event.contact,
+        "maximum_attendees": event.maximum_attendees,
+        "starts_at": event.starts_at,
+        "ends_at": event.ends_at,
+        "location": event.location,
+        "description": event.description,
+    }
+
+    if request.method == "POST":
+        form = EventForm(request.POST, initial=initial_data)
+        if form.is_valid():
+            for field, value in form.cleaned_data.items():
+                setattr(event, field, value)
+            event.save()
+            if form.has_changed():
+                messages.success(request, "Event modified successfully!")
+            return redirect("event_detail", pk=event.id)
+
+    else:
+        form = EventForm(initial=initial_data)
+
+    return render(
+        request,
+        "events/event_form.html",
+        {
+            "form": form,
+            "event": event,
+            "title": "Update Event",
+            "submit_text": "Save changes to event",
+        },
+    )
+
+
+@login_required
+def event_delete_view(request, pk):
+    event = get_object_or_404(Event, pk=pk)
+    if event.organiser != request.user:
+        messages.warning(request, "You cannot modify another user's event.")
+        return HttpResponseRedirect(reverse("event_list"))
+    if request.method == "POST":
+        form = DeleteEventForm(request.POST)
+        if form.is_valid() and form.cleaned_data["confirm"] == "DELETE":
+            event.delete()
+            messages.info(request, "Event deleted successfully.")
+            return redirect("event_list")
+    else:
+        form = DeleteEventForm()
+    return render(
+        request, "events/event_delete.html", {"form": form, "event": event}
+    )
