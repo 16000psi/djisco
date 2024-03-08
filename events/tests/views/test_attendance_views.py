@@ -61,29 +61,57 @@ class ManageEventAttendanceTestCase(TestCase):
         )
         self.assertEqual(response.status_code, HTTPStatus.BAD_REQUEST)
 
-    def test_attending_RSVP_created_if_none_exist_for_authenticated_user(self):
-        """
-        manage_event_attendance creates RSVP if none exist and action is 'attend'.
-
-        If the user is authenticated, the request method is POST, and
-        no RSVP record exists for the authenticated user and the event,
-        than and RSVP record should be created. This tests asserts that
-        a records is created ad that the RSVP.user and .event are correct.
-        """
+    def test_non_ajax_attend_happy_path(self):
+        # Arrange
         self.client.login(username="b", password="b")
+        initial_rsvp_count = RSVP.objects.filter(
+            event=self.event_01, user=self.user_01
+        ).count()
 
-        initial_rsvp_count = RSVP.objects.count()
-        self.client.post(
-            reverse("event_attendance", args=[self.event_01.pk, "attend"])
+        # Act
+        response = self.client.post(
+            reverse("event_attendance", args=[self.event_01.pk, "attend"]),
+            {"redirect_target": "/previous_view/"},
         )
 
-        expected_rsvp_count = initial_rsvp_count + 1
-        final_rsvp_count = RSVP.objects.count()
-        self.assertEqual(expected_rsvp_count, final_rsvp_count)
+        # Assert - redirects to previous view
+        self.assertEqual(response.status_code, HTTPStatus.FOUND)
+        self.assertEqual(response.url, "/previous_view/")
 
+        # Assert - RSVP created
+        expected_rsvp_count = initial_rsvp_count + 1
+        final_rsvp_count = RSVP.objects.filter(
+            event=self.event_01, user=self.user_01
+        ).count()
+        self.assertEqual(expected_rsvp_count, final_rsvp_count)
         last_record = RSVP.objects.latest("id")
         self.assertEqual(self.event_01.id, last_record.event_id)
         self.assertEqual(self.user_01.id, last_record.user_id)
+
+    def test_non_ajax_unattend_happy_path(self):
+        # Arrange
+        self.client.login(username="c", password="c")
+        initial_rsvp_count = RSVP.objects.filter(
+            event=self.event_01, user=self.user_02
+        ).count()
+
+        # Act
+        response = self.client.post(
+            reverse("event_attendance", args=[self.event_01.pk, "unattend"]),
+            {"redirect_target": "/previous_view/"},
+        )
+        # Assert - redirects to previous view
+        self.assertEqual(response.status_code, HTTPStatus.FOUND)
+        self.assertEqual(response.url, "/previous_view/")
+
+        # Assert - RSVP deleted
+        expected_rsvp_count = initial_rsvp_count - 1
+        final_rsvp_count = RSVP.objects.filter(
+            event=self.event_01, user=self.user_02
+        ).count()
+        self.assertEqual(expected_rsvp_count, final_rsvp_count)
+        with self.assertRaises(RSVP.DoesNotExist):
+            RSVP.objects.get(event=self.event_01, user=self.user_02)
 
     def test_attend_RSVP_not_created_if_one_exists_for_authenticated_user(self):
         """
@@ -104,28 +132,6 @@ class ManageEventAttendanceTestCase(TestCase):
         final_rsvp_count = RSVP.objects.count()
         self.assertEqual(initial_rsvp_count, final_rsvp_count)
 
-    def test_unattend_RSVP_deleted_if_one_exists_for_authenticated_user(self):
-        """
-        manage_event_attendance deletes RSVP if one exists and action is 'unattend'.
-
-        The if a user is authenticated, the method is POST, and an RSVP
-        record exists for the authenticated user and the target Event,
-        it should be deleted as part of the event_unattend view.
-        """
-        self.client.login(username="c", password="c")
-
-        initial_rsvp_count = RSVP.objects.count()
-        self.client.post(
-            reverse("event_attendance", args=[self.event_01.pk, "unattend"])
-        )
-
-        expected_rsvp_count = initial_rsvp_count - 1
-        final_rsvp_count = RSVP.objects.count()
-        self.assertEqual(expected_rsvp_count, final_rsvp_count)
-
-        with self.assertRaises(RSVP.DoesNotExist):
-            RSVP.objects.get(event=self.event_01, user=self.user_02)
-
     def test_unattend_RSVP_table_unmodified_if_no_record_exists(self):
         """
         manage_event_attendance does not modify database if no RSVP exists and action is 'unattend'.
@@ -145,68 +151,65 @@ class ManageEventAttendanceTestCase(TestCase):
         final_rsvp_count = RSVP.objects.count()
         self.assertEqual(initial_rsvp_count, final_rsvp_count)
 
-    def test_redirects_to_previous_view(self):
-        """
-        manage_event_attendance correclty redirects to the last view if authenticated
-
-        If a user is authenticated and the method is POST then the view
-        should redirect the user to the previous view.
-        """
+    def test_ajax_attend_happy_path(self):
+        # Arrange
         self.client.login(username="b", password="b")
+        initial_rsvp_count = RSVP.objects.filter(
+            event=self.event_01, user=self.user_01
+        ).count()
 
-        response = self.client.post(
-            reverse("event_attendance", args=[self.event_01.pk, "attend"]),
-            {"redirect_target": "/previous_view/"},
-        )
-
-        self.assertEqual(response.status_code, HTTPStatus.FOUND)
-
-        self.assertEqual(response.url, "/previous_view/")
-
-    def test_ajax_attend_200_response_with_success(self):
-        """
-        AJAX manage_event_attendance attend should respond with 200 and correct data
-
-        manage_event_attendance view should return a 200 if the AJAX POST request is
-        successful for the attend path. The response content should also contain a key,
-        "success", with a value of True.
-        """
-        self.client.login(username="b", password="b")
-
+        # Act
         response = self.client.post(
             reverse("event_attendance", args=[self.event_01.pk, "attend"]),
             {"redirect_target": "/previous_view/"},
             HTTP_ACCEPT="application/json",
         )
 
+        # Assert - Response 200
         self.assertEqual(response.status_code, HTTPStatus.OK)
+
+        # Assert - data contains "success" key True
         data = response.json()
         self.assertIn("success", data)
         self.assertTrue(data["success"])
 
-    def test_ajax_attend_rsvp_created_if_none_exist(self):
-        """
-        AJAX attend endpoint should create an RSVP record for a valid request
-
-        for a valid request to the attend endpoint, an RSVP record should be created
-        corresponding to the relevant User and Event.
-        """
-        self.client.login(username="b", password="b")
-        initial_rsvp_count = RSVP.objects.count()
-
-        self.client.post(
-            reverse("event_attendance", args=[self.event_01.pk, "attend"]),
-            {"redirect_target": "/previous_view/"},
-            HTTP_ACCEPT="application/json",
-        )
-
+        # Assert - RSVP record created
         expected_rsvp_count = initial_rsvp_count + 1
-        final_rsvp_count = RSVP.objects.count()
+        final_rsvp_count = RSVP.objects.filter(
+            event=self.event_01, user=self.user_01
+        ).count()
         self.assertEqual(expected_rsvp_count, final_rsvp_count)
 
         last_record = RSVP.objects.latest("id")
         self.assertEqual(self.event_01.id, last_record.event_id)
         self.assertEqual(self.user_01.id, last_record.user_id)
+
+    def test_ajax_unattend_happy_path(self):
+        # Arrange
+        self.client.login(username="c", password="c")
+        initial_rsvp_count = RSVP.objects.filter(
+            event=self.event_01, user=self.user_02
+        ).count()
+
+        # Act
+        response = self.client.post(
+            reverse("event_attendance", args=[self.event_01.pk, "unattend"]),
+            {"redirect_target": "/previous_view/"},
+            HTTP_ACCEPT="application/json",
+        )
+
+        # Assert - data contains "success" key True
+        self.assertEqual(response.status_code, HTTPStatus.OK)
+        data = response.json()
+        self.assertIn("success", data)
+        self.assertTrue(data["success"])
+
+        # Assert - RSVP record deleted
+        expected_rsvp_count = initial_rsvp_count - 1
+        final_rsvp_count = RSVP.objects.filter(
+            event=self.event_01, user=self.user_02
+        ).count()
+        self.assertEqual(expected_rsvp_count, final_rsvp_count)
 
     def test_ajax_attend_409_response_with_success_false_if_RSVP_exists(self):
         """
@@ -248,47 +251,6 @@ class ManageEventAttendanceTestCase(TestCase):
         )
 
         expected_rsvp_count = initial_rsvp_count
-        final_rsvp_count = RSVP.objects.count()
-        self.assertEqual(expected_rsvp_count, final_rsvp_count)
-
-    def test_ajax_unattend_200_response_with_success(self):
-        """
-        AJAX unattend endpoint should respond with 200 and correct data
-
-        manage_event_attendance view should return a 200 if the AJAX POST request is
-        successful for the unattend path. The response content should also contain a key,
-        "success", with a value of True.
-        """
-        self.client.login(username="c", password="c")
-
-        response = self.client.post(
-            reverse("event_attendance", args=[self.event_01.pk, "unattend"]),
-            {"redirect_target": "/previous_view/"},
-            HTTP_ACCEPT="application/json",
-        )
-
-        self.assertEqual(response.status_code, HTTPStatus.OK)
-        data = response.json()
-        self.assertIn("success", data)
-        self.assertTrue(data["success"])
-
-    def test_ajax_unattend_rsvp_removed_if_exists(self):
-        """
-        AJAX unattend endpoint should remove relevant RSVP record if one exists
-
-        for a valid request to the unattend endpoint, an RSVP record should be
-        removed if it exists for the relevant User and Event.
-        """
-        self.client.login(username="c", password="c")
-        initial_rsvp_count = RSVP.objects.count()
-
-        self.client.post(
-            reverse("event_attendance", args=[self.event_01.pk, "unattend"]),
-            {"redirect_target": "/previous_view/"},
-            HTTP_ACCEPT="application/json",
-        )
-
-        expected_rsvp_count = initial_rsvp_count - 1
         final_rsvp_count = RSVP.objects.count()
         self.assertEqual(expected_rsvp_count, final_rsvp_count)
 

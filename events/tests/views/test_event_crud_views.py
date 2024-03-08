@@ -6,8 +6,8 @@ from django.contrib import messages as django_messages
 from django.test import TestCase
 from django.urls import reverse
 from django.utils import timezone
-from events.models import RSVP, Event
 
+from events.models import RSVP, Event
 from users.models import User
 
 
@@ -26,15 +26,6 @@ class EventCreateViewTestCase(TestCase):
         }
         cls.url = reverse("event_new")
 
-    def test_create_view_returns_200_response_if_authenticated(self):
-        """
-        If user is authenticated, view should return 200 response
-        """
-        self.client.force_login(self.new_user)
-        response = self.client.get(self.url)
-
-        self.assertEqual(response.status_code, HTTPStatus.OK)
-
     def test_redirect_to_login_if_unauthenticated(self):
         """
         If user is not authenticated, view should redirect to login
@@ -43,48 +34,36 @@ class EventCreateViewTestCase(TestCase):
         expected_params = f"?next={self.url}"
         self.assertRedirects(response, reverse("login") + expected_params)
 
-    def test_create_view_redirects_to_detail_on_success(self):
-        """
-        If a user is authenticated the view should redirect to the detail view
-
-        event_create_view should redirect to the detail view of the new event
-        upon correct submission.
-        """
+    def test_get_request_happy_path(self):
+        # Arrange
         self.client.force_login(self.new_user)
-        response = self.client.post(self.url, self.event_data)
-        self.assertRedirects(response, reverse("event_detail", args=[1]))
 
-    def test_create_view_gives_success_message(self):
-        """
-        Successfully creating a event should add a success message
-        """
-        self.client.force_login(self.new_user)
-        response = self.client.post(self.url, self.event_data)
-        messages = list(django_messages.get_messages(response.wsgi_request))
-        self.assertEqual(len(messages), 1)
-        self.assertEqual(str(messages[0]), "Event created successfully!")
-        self.assertEqual(messages[0].level, django_messages.constants.SUCCESS)
+        # Act
+        response = self.client.get(self.url)
 
-    def test_create_view_adds_event_and_RSVP(self):
-        """
-        If a user is authenticated the view should add a event and RSVP
+        # Assert - correct response code
+        self.assertEqual(response.status_code, HTTPStatus.OK)
 
-        The event_create_view should allow a valid form to be submitted.
-        If a valid form is submitted then the view should create a new
-        event record with the form and then an RSVP, recording that the
-        oragniser is attending the Event.
-        """
-        self.client.force_login(self.new_user)
-        self.client.post(self.url, self.event_data)
+        # Assert - Correct template used
+        self.assertTemplateUsed(response, "events/event_form.html")
 
-        self.assertEqual(Event.objects.count(), 1)
-        self.assertEqual(RSVP.objects.count(), 1)
-        self.assertEqual(RSVP.objects.first().user, self.new_user)
+        # Assert - Form is in context
+        self.assertIn("form", response.context)
 
-        event = Event.objects.first()
+        # Assert - Correct title and submit_text in context
+        self.assertEqual(response.context["title"], "Create Event")
+        self.assertEqual(response.context["submit_text"], "Create new event")
 
+        # Assert - Form contact prepopulated with current user
+        expected_contact = self.new_user
+        actual_contact = response.context["form"].initial["contact"]
+        self.assertEqual(expected_contact, actual_contact)
+
+    def test_post_request_happy_path(self):
+        # Arrange
         expected_values = {
             "title": "event01",
+            "organiser": self.new_user,  # Organiser must be submitter
             "contact": self.new_user,
             "starts_at": timezone.make_aware(datetime(2025, 10, 10, 14, 30, 0)),
             "ends_at": timezone.make_aware(datetime(2025, 10, 10, 16, 30, 0)),
@@ -92,11 +71,34 @@ class EventCreateViewTestCase(TestCase):
             "description": "brillientay",
             "maximum_attendees": 20,
         }
+        self.client.force_login(self.new_user)
 
+        # Act
+        response = self.client.post(self.url, self.event_data)
+
+        event = Event.objects.first()
+
+        # Assert - Event created with correct data
+        self.assertEqual(Event.objects.count(), 1)
         for field, expected_value in expected_values.items():
             with self.subTest(field=field):
                 actual_value = getattr(event, field)
                 self.assertEqual(actual_value, expected_value)
+
+        # Assert - RSVP created for organiser and new event
+        rsvps = RSVP.objects.filter(event=event)
+        self.assertEqual(rsvps.count(), 1)
+        self.assertEqual(rsvps.first().user, self.new_user)
+        self.assertEqual(rsvps.first().event, event)
+
+        # Assert - Redirects to detail view for new event
+        self.assertRedirects(response, reverse("event_detail", args=[1]))
+
+        # Assert - Gives success message
+        messages = list(django_messages.get_messages(response.wsgi_request))
+        self.assertEqual(len(messages), 1)
+        self.assertEqual(str(messages[0]), "Event created successfully!")
+        self.assertEqual(messages[0].level, django_messages.constants.SUCCESS)
 
     def test_starts_at_lt_now_invalid(self):
         """
@@ -179,20 +181,6 @@ class EventCreateViewTestCase(TestCase):
         form = response.context["form"]
         self.assertTrue(form.is_create)
 
-    def test_form_populated_with_correct_contact_value(self):
-        """
-        The contact field should be prepopulated with the current user
-
-        For a get request the event_create_view should prepopulate the
-        form's organiser field with the current logged in user.
-        """
-        expected_contact = self.new_user
-        self.client.force_login(self.new_user)
-        response = self.client.get(self.url)
-        actual_contact = response.context["form"].initial["contact"]
-
-        self.assertEqual(expected_contact, actual_contact)
-
 
 class EventUpdateViewTestCase(TestCase):
     @classmethod
@@ -222,76 +210,85 @@ class EventUpdateViewTestCase(TestCase):
         }
         cls.url = reverse("event_edit", args=[cls.event.pk])
 
-    def test_update_view_returns_200_response_if_authenticated_organiser(self):
-        """
-        If user is logged in as the organiser, view should return 200 response
-        """
-        self.client.force_login(self.new_user)
-        response = self.client.get(self.url)
-
-        self.assertEqual(response.status_code, HTTPStatus.OK)
-
     def test_redirect_to_login_if_unauthenticated(self):
-        """
-        If user is not logged in then view should redirect to login
-        """
         response = self.client.post(self.url)
         expected_params = f"?next={self.url}"
         self.assertRedirects(response, reverse("login") + expected_params)
 
-    def test_redirect_to_list_view_if_not_organiser(self):
-        """
-        If user is logged in not as the organiser then view should redirect to list
-
-        Event records should only be modifiable by the organiser of
-        that Event (a field on the Event model, the creator of the Event).
-        """
+    def test_not_event_organiser(self):
+        # Arrange - log in as non-organiser user
         self.client.force_login(self.other_user)
+
+        # Act
         response = self.client.post(self.url)
+
+        # Assert - redirects to event list
         self.assertRedirects(response, reverse("event_list"))
 
-    def test_gives_warning_message_if_not_organiser(self):
-        """
-        If user is logged in not as organiser then message should be displayed
-        """
-        self.client.force_login(self.other_user)
-        response = self.client.post(self.url)
+        # Assert - gives warning message
         messages = list(django_messages.get_messages(response.wsgi_request))
         self.assertEqual(len(messages), 1)
         self.assertEqual(str(messages[0]), "You cannot modify another user's event.")
         self.assertEqual(messages[0].level, django_messages.constants.WARNING)
 
-    def test_update_view_redirects_to_detail_view_on_success(self):
-        """
-        If a user is authenticated the view should redirect to the detail view
-
-        event_update_view should redirect to the detail view for the updated event
-        upon correct submission.
-        """
+    def test_get_request_happy_path(self):
+        # Arrange
         self.client.force_login(self.new_user)
-        response = self.client.post(self.url, self.event_data)
+
+        # Act
+        response = self.client.get(self.url)
+
+        # Assert - correct response code
+        self.assertEqual(response.status_code, HTTPStatus.OK)
+
+        # Assert - Correct template used
+        self.assertTemplateUsed(response, "events/event_form.html")
+
+        # Assert - Correct title and submit_text in context
+        self.assertEqual(response.context["title"], "Update Event")
+        self.assertEqual(response.context["submit_text"], "Save changes to event")
+
+        # Assert - Form is in context with correct initial data
+        self.assertIn("form", response.context)
+        form = response.context["form"]
+        self.assertEqual(form.initial["title"], self.event.title)
+        self.assertEqual(form.initial["contact"], self.event.contact.id)
+        self.assertEqual(
+            form.initial["maximum_attendees"], self.event.maximum_attendees
+        )
+        self.assertEqual(form.initial["starts_at"], self.event.starts_at)
+        self.assertEqual(form.initial["ends_at"], self.event.ends_at)
+        self.assertEqual(form.initial["location"], self.event.location)
+        self.assertEqual(form.initial["description"], self.event.description)
+
+    def test_post_request_happy_path(self):
+        # Arrange
+        new_location = "there"
+        event_data = {
+            "title": self.event.title,
+            "contact": self.new_user.id,
+            "starts_at": self.event.starts_at,
+            "ends_at": self.event.ends_at,
+            "location": new_location,
+            "description": self.event.description,
+            "maximum_attendees": self.event.maximum_attendees,
+        }
+        expected_event_count = Event.objects.count()
+
+        # Act
+        self.client.force_login(self.new_user)
+        response = self.client.post(self.url, event_data)
+
+        # Assert - redirects to detail view for updated event
         self.assertRedirects(response, reverse("event_detail", args=[1]))
 
-    def test_update_view_edits_event(self):
-        """
-        The view should correctly update a Event record if the form is valid
-
-        If the user is logged in as the organiser of the event and they submit
-        a valid form via post request, the view should update the record for the
-        event with the new form data.
-        """
-        self.client.force_login(self.new_user)
-        self.client.post(self.url, self.event_data)
-
+        # Assert - correctly modifies event record in database
         self.event.refresh_from_db()
         self.assertEqual(self.event.location, self.new_location)
+        actual_event_count = Event.objects.count()
+        self.assertEqual(expected_event_count, actual_event_count)
 
-    def test_update_view_gives_success_message(self):
-        """
-        Successfully updating a event should add a success message
-        """
-        self.client.force_login(self.new_user)
-        response = self.client.post(self.url, self.event_data)
+        # Assert - gives success message
         messages = list(django_messages.get_messages(response.wsgi_request))
         self.assertEqual(len(messages), 1)
         self.assertEqual(str(messages[0]), "Event modified successfully!")
@@ -306,7 +303,15 @@ class EventUpdateViewTestCase(TestCase):
         in the case that it has changed.
         """
 
-        unchanged_data = {**self.event_data, "location": "here"}
+        unchanged_data = {
+            "title": self.event.title,
+            "contact": self.new_user.id,
+            "starts_at": self.event.starts_at,
+            "ends_at": self.event.ends_at,
+            "location": self.event.location,
+            "description": self.event.description,
+            "maximum_attendees": self.event.maximum_attendees,
+        }
         self.client.force_login(self.new_user)
         response = self.client.post(self.url, unchanged_data)
         messages = list(django_messages.get_messages(response.wsgi_request))
@@ -426,28 +431,20 @@ class EventUpdateViewTestCase(TestCase):
 
             MockEventForm.assert_called_once_with(ANY, instance=ANY, is_create=False)
 
-    def test_form_populated_with_correct_event_values(self):
+    def test_update_view_cannot_change_organiser(self):
         """
-        The update form should be rendered with the correct event data
-        """
-        expected_event_data = {
-            "title": "event01",
-            "contact": self.new_user.id,
-            "starts_at": datetime(2025, 10, 10, 14, 30, tzinfo=timezone.utc),
-            "ends_at": datetime(2026, 10, 10, 15, 30, tzinfo=timezone.utc),
-            "location": "here",
-            "description": "brillientay",
-            "maximum_attendees": 20,
-        }
+        The user cannot submit to this view and change the Event organiser
 
+        The event organiser is automatically by the event_create_view to
+        be the user who created the event. This test checks that the update
+        view cannot be used to change this later.
+        """
+        altered_organiser_data = {**self.event_data, "organiser": self.other_user}
         self.client.force_login(self.new_user)
-        response = self.client.get(self.url)
-        form = response.context["form"]
+        self.client.post(self.url, altered_organiser_data)
+        self.event.refresh_from_db()
 
-        for key, expected_value in expected_event_data.items():
-            with self.subTest(key=key):
-                initial_value = form.initial[key]
-                self.assertEqual(expected_value, initial_value)
+        self.assertEqual(self.event.organiser, self.new_user)
 
 
 class EventDeleteViewTestCase(TestCase):
@@ -468,15 +465,6 @@ class EventDeleteViewTestCase(TestCase):
         )
         cls.url = reverse("event_delete", args=[cls.event.pk])
 
-    def test_delete_view_returns_200_response_if_authenticated_organiser(self):
-        """
-        If logged in as event organiser the view should return a 200 response
-        """
-        self.client.force_login(self.new_user)
-        response = self.client.get(self.url)
-
-        self.assertEqual(response.status_code, HTTPStatus.OK)
-
     def test_redirect_to_login_if_unauthenticated(self):
         """
         If not logged in then the view should redirect the user to login
@@ -493,28 +481,37 @@ class EventDeleteViewTestCase(TestCase):
         response = self.client.post(self.url)
         self.assertRedirects(response, reverse("event_list"))
 
-    def test_delete_view_redirects_to_list_on_success(self):
-        """
-        If a user is authenticated the view should redirect to the list view
-
-        event_delete_view should redirect to the list view upon
-        correct submission.
-        """
+    def test_get_request_happy_path(self):
+        # Arrange
         self.client.force_login(self.new_user)
+
+        # Act
+        response = self.client.get(self.url)
+
+        # Assert - correct status code
+        self.assertEqual(response.status_code, HTTPStatus.OK)
+
+        # Assert - Correct template used
+        self.assertTemplateUsed(response, "events/event_delete.html")
+
+        # Assert - Form and event are in context
+        self.assertIn("form", response.context)
+        self.assertIn("event", response.context)
+
+        # Assert - Correct event in context
+        self.assertEqual(response.context["event"], self.event)
+
+    def test_post_request_happy_path(self):
+        # Arrange
+        self.client.force_login(self.new_user)
+
+        # Act
         response = self.client.post(self.url, {"confirm": "DELETE"})
+
+        # Assert - redirects to list view on success
         self.assertRedirects(response, reverse("event_list"))
 
-    def test_delete_view_deletes_event(self):
-        """
-        If the form is correctly submitted then the event record should be deleted
-
-        Users wishing to delete a event must type "DELETE" to confirm.  If this is
-        done correctly when submitting, the event should be deleted.
-        """
-
-        self.client.force_login(self.new_user)
-        self.client.post(self.url, {"confirm": "DELETE"})
-
+        # Assert - deletes event record
         self.assertEqual(Event.objects.count(), 0)
 
     def test_delete_view_form_invalid(self):
