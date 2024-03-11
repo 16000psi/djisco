@@ -1,5 +1,5 @@
 from django.db import models
-from django.db.models import BooleanField, Case, Count, F, Value, When
+from django.db.models import BooleanField, Case, Count, F, Q, Value, When
 from django.db.models.functions import Greatest
 from django.utils import timezone
 
@@ -113,7 +113,25 @@ class RSVP(models.Model):
         return f"Attending {self.event.title}"
 
 
+class ContributionItemQuerySet(models.QuerySet):
+    def filter_for_event(self, event):
+        subquery = ContributionRequirement.objects.filter(event=event).values("contribution_item_id")
+        return self.filter(id__in=models.Subquery(subquery))
+
+    def with_counts_for_event(self, event):
+        return self.annotate(
+            requirements_count=Count(
+                "contributionrequirement", filter=Q(contributionrequirement__event=event)
+            ),
+            commitments_count=Count(
+                "contributionrequirement__contributioncommitment",
+                filter=Q(contributionrequirement__event=event),
+            ),
+        )
+
+
 class ContributionItem(models.Model):
+    objects = ContributionItemQuerySet.as_manager()
     title = models.TextField(unique=True)
 
     def __str__(self):
