@@ -866,6 +866,7 @@ blockquote {
 .app-logo {
   color: var(--color--white);
 }
+
 .title_bar__pagination__item {
   color: var(--color--light-grey-accessible);
   margin-bottom: 3px;
@@ -892,7 +893,7 @@ blockquote {
   margin-top: 20px;
   margin-bottom: 10px;
   line-height: 1;
-  text-align: center;m
+  text-align: center;
 }
 
 .layout__article {
@@ -1030,14 +1031,15 @@ tr {
 }
 
 caption {
-    position: absolute;
-    width: 1px;
-    height: 1px;
-    margin: -1px;
-    padding: 0;
-    overflow: hidden;
-    clip: rect(0, 0, 0, 0);
-    border: 0;
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  padding: 0;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  border: 0;
+}
 
 .loading {
   display: inline-block;
