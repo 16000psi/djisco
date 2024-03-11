@@ -22,7 +22,7 @@
                     {% endif %}
                 </div>
             </div>
-            <a href="" class="button button--primary">Create a new event</a>
+            <a href="{% url 'event_new' %}" class="button button--primary">Create a new event</a>
         </div>
         <div class="grid grid--sidebar">
             <div>
@@ -102,7 +102,7 @@
                     </article>
                 {% endfor %}
                 <div class="pagination">
-                    <p class="pagination__readout">{{ pagination_message }}</p>
+                    <p class="pagination__readout">Displaying {{ page_obj.start_index }} - {{ page_obj.end_index }} of {{ paginator.count }} results.</p>
                 </div>
                 <div class="pagination">
                     {% if page_obj.has_previous %}
