@@ -1,12 +1,16 @@
 {% extends "base.html" %}
 {% load static %}
-{% block title %}Djisco - {{ event.title }}{% endblock title %}
+{% block title %}Event App - {{ event.title }}{% endblock title %}
 {% block content %}
-    {% if event.ends_at < now %}
-        <p><a href="{% url 'event_list' %}">Home</a>&nbsp;&gt;&nbsp;{{ event.title }}</p>
-    {% else %}
-        <p><a href="{% url 'event_list' %}">Home</a>&nbsp;&gt;&nbsp;{{ event.title }}</p>
-    {% endif %}
+    <nav class="detail-nav">
+        <p class="breadcrumbs"><a href="{% url 'event_list' %}">Home</a>&nbsp;&gt;&nbsp;{{ event.title }}</p>
+        <div class="event-actions-container">
+            {% if user.is_authenticated and user == event.organiser %}
+                <a href="{% url 'event_edit' pk=event.id %}" class="button button--secondary">Edit</a>
+                <a href="{% url 'event_delete' pk=event.id %}" class="button button--secondary">Delete</a>
+            {% endif %}
+        </div>
+    </nav>
     <article data-event-card class="layout__single">
         <h2>{{ event.title }}</h2>
         <hr>
@@ -43,7 +47,56 @@
         <p class="rich-text">{{ event.description }}</p>
         <hr>
         <div class="detail_form_container">
-            {% include "events/attendance.html" %}
+            {% if user.is_authenticated %}
+                {% if event.has_user_rsvp or event.accepting_attendees %}
+                    {% if event.ends_at > now %}
+
+                        <form data-attendance-form method="post"
+                              {% if event.has_user_rsvp %}
+                                  action="{% url 'event_attendance' pk=event.id action='unattend' %}"
+                                  data-form-action="unattend"
+                              {% else %}
+                                  action="{% url 'event_attendance' pk=event.id action='attend' %}"
+                                  data-form-action="attend"
+                              {% endif %}
+                              data-button-text-unattend="Cancel your attendance"
+                              data-button-text-attend="Join this Event!"
+                              data-unattend-url="{% url 'event_attendance' pk=event.id action='unattend' %}"
+                              data-attend-url="{% url 'event_attendance' pk=event.id action='attend' %}"
+                              data-attendee-count="{{ event.attendee_count }}"
+                              data-maximum-attendees="{{ event.maximum_attendees }}"
+                        >
+
+                            {% csrf_token %}
+                            <input type="hidden" name="redirect_target" value="{{ request.path }}">
+                            <div class="attend_button_container">
+                                <div data-loading class="loading hidden"></div>
+
+                                <button data-attendance-button
+                                        class="button button--border
+                                               {% if event.has_user_rsvp %}
+                                                   unattend_button
+                                               {% else %}
+                                                   attend_button
+                                               {% endif %}"
+                                        type="submit"
+                                >
+                                    {% if event.has_user_rsvp %}
+                                        Cancel your attendance
+                                    {% else %}
+                                        Join this Event!
+                                    {% endif %}
+                                </button>
+
+                            </div>
+                        </form>
+                    {% else %}
+                        {% if event.has_user_rsvp %}
+                            <p class="attendance_record">You attended this Event!</p>
+                        {% endif %}
+                    {% endif %}
+                {% endif %}
+            {% endif %}
             <p data-error class="error hidden" aria-live="polite"></p>
         </div>
         <div>
