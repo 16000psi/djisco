@@ -1,0 +1,26 @@
+<article data-event-card class="card layout__article">
+    <div class="title_attending_container">
+        <a href="{% url 'event_detail' pk=event.id %}">
+            <h3>{{ event.title }}</h3>
+        </a>
+        {% include "events/attendance.html" %}
+
+    </div>
+    {% if event.ends_at < now %}
+        <p>{{ event.starts_at|timesince }} ago - {{ event.starts_at|date }}</p>
+    {% else %}
+        <time>{{ event.starts_at }} - {{ event.ends_at }}</time>
+        <p data-attendance-description
+           data-attendance-description-type="list"
+        >
+            {% if event.has_user_rsvp %}
+                {{ event.remaining_spaces }} spaces left - you are attending
+            {% else %}
+                {{ event.remaining_spaces }} spaces left
+            {% endif %}
+        </p>
+    {% endif %}
+    <p >{{ event.location }}</p>
+    <p class="rich-text">{{ event.description }}</p>
+    <p data-error class="error hidden" aria-live="polite"></p>
+</article>

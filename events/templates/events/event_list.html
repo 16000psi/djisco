@@ -28,32 +28,7 @@
             <div>
                 <p class="subtitle">We have events ranging from {{ attendees_min }} to {{ attendees_max }} attendees.</p>
                 {% for event in page_obj %}
-                    <article data-event-card class="card layout__article">
-                        <div class="title_attending_container">
-                            <a href="{% url 'event_detail' pk=event.id %}">
-                                <h3>{{ event.title }}</h3>
-                            </a>
-                            {% include "events/attendance.html" %}
-
-                        </div>
-                        {% if event.ends_at < now %}
-                            <p>{{ event.starts_at|timesince }} ago - {{ event.starts_at|date }}</p>
-                        {% else %}
-                            <time>{{ event.starts_at }} - {{ event.ends_at }}</time>
-                            <p data-attendance-description
-                               data-attendance-description-type="list"
-                            >
-                                {% if event.has_user_rsvp %}
-                                    {{ event.remaining_spaces }} spaces left - you are attending
-                                {% else %}
-                                    {{ event.remaining_spaces }} spaces left
-                                {% endif %}
-                            </p>
-                        {% endif %}
-                        <p >{{ event.location }}</p>
-                        <p class="rich-text">{{ event.description }}</p>
-                        <p data-error class="error hidden" aria-live="polite"></p>
-                    </article>
+                    {% include "events/event_list_card.html" %}
                 {% endfor %}
                 <div class="pagination">
                     <p class="pagination__readout">Displaying {{ page_obj.start_index }} - {{ page_obj.end_index }} of {{ paginator.count }} results.</p>
