@@ -1,8 +1,8 @@
 from django import forms
 from django.test import TestCase
 from django.utils import timezone
+from events.forms import DeleteEventForm, EventCreateForm, EventForm
 
-from events.forms import DeleteEventForm, EventForm
 from users.models import User
 
 
@@ -18,7 +18,7 @@ class EventFormTest(TestCase):
         The fields should be the same as the Event model, minus the organiser
         which is set automatically in the view to be the logged-in user.
         """
-        form = EventForm(is_create=True)
+        form = EventForm()
         expected_fields = [
             "title",
             "contact",
@@ -35,32 +35,9 @@ class EventFormTest(TestCase):
             with self.subTest(field=field):
                 self.assertTrue(field in actual_fields)
 
-    def test_create_starts_at_in_past_gives_error(self):
-        """
-        EventForm must error if start_date is in the past for create view
-        """
-        form = EventForm(
-            {
-                "title": "Test Event",
-                "contact": self.user.id,
-                "maximum_attendees": 5,
-                "starts_at": timezone.now() - timezone.timedelta(days=1),
-                "ends_at": timezone.now() + timezone.timedelta(hours=2),
-                "location": "Test Location",
-                "description": "Test Description",
-            },
-            is_create=True,
-        )
-
-        self.assertFalse(form.is_valid())
-        self.assertEqual(
-            form.errors["starts_at"], ["You cannot create a event in the past!"]
-        )
-        self.assertEqual(len(form.errors), 1)
-
     def test_update_starts_at_in_past_is_valid(self):
         """
-        EventForm must accept a start_date in the past for update view
+        EventForm must accept a start_date in the past
         """
         form = EventForm(
             {
@@ -72,7 +49,6 @@ class EventFormTest(TestCase):
                 "location": "Test Location",
                 "description": "Test Description",
             },
-            is_create=False,
         )
 
         self.assertTrue(form.is_valid())
@@ -91,7 +67,6 @@ class EventFormTest(TestCase):
                 "location": "Test Location",
                 "description": "Test Description",
             },
-            is_create=True,
         )
 
         self.assertFalse(form.is_valid())
@@ -114,12 +89,38 @@ class EventFormTest(TestCase):
                 "location": "Test Location",
                 "description": "Test Description",
             },
-            is_create=True,
         )
 
         self.assertFalse(form.is_valid())
         self.assertEqual(
             form.errors["ends_at"], ["Events cannot end before they have begun!"]
+        )
+        self.assertEqual(len(form.errors), 1)
+
+
+class EventCreateFormTest(TestCase):
+    def setUp(self):
+        self.user = User.objects.create(username="testuser")
+
+    def test_starts_at_in_past_gives_error(self):
+        """
+        EventCreateForm must error if start_date is in the past
+        """
+        form = EventCreateForm(
+            {
+                "title": "Test Event",
+                "contact": self.user.id,
+                "maximum_attendees": 5,
+                "starts_at": timezone.now() - timezone.timedelta(days=1),
+                "ends_at": timezone.now() + timezone.timedelta(hours=2),
+                "location": "Test Location",
+                "description": "Test Description",
+            },
+        )
+
+        self.assertFalse(form.is_valid())
+        self.assertEqual(
+            form.errors["starts_at"], ["You cannot create a event in the past!"]
         )
         self.assertEqual(len(form.errors), 1)
 

@@ -1,6 +1,5 @@
 from datetime import datetime
 from http import HTTPStatus
-from unittest.mock import ANY, patch
 
 from django.contrib import messages as django_messages
 from django.test import TestCase
@@ -165,21 +164,6 @@ class EventCreateViewTestCase(TestCase):
         self.assertEqual(Event.objects.count(), 0)
         self.assertEqual(RSVP.objects.count(), 0)
         self.assertEqual(response.status_code, HTTPStatus.OK)
-
-    def test_view_uses_form_with_is_create_true(self):
-        """
-        The create view should use the EventForm with is_create set to True
-
-        EventForm uses an is_create boolean flag as part of validation. If
-        set to true then the form will not validate for events in the past
-        (this behaviour is what we want when creating a event, but not updating
-        one).  We need is_create to be set to True for the create view so
-        that the user cannot create a event in the past.
-        """
-        self.client.force_login(self.new_user)
-        response = self.client.get(self.url)
-        form = response.context["form"]
-        self.assertTrue(form.is_create)
 
 
 class EventUpdateViewTestCase(TestCase):
@@ -410,26 +394,6 @@ class EventUpdateViewTestCase(TestCase):
                     getattr(possibly_updated_event, field_name),
                     getattr(self.event, field_name),
                 )
-
-    def test_view_uses_form_with_is_create_false(self):
-        """
-        The update view should use the EventForm with is_create set to False
-
-        EventForm uses an is_create boolean flag as part of validation. If
-        set to true then the form will not validate for events in the past
-        (this behaviour is what we want when creating a event, but not updating
-        one).  We need is_create to be set to false for the update view during
-        post requests so that that we can edit events from the past.
-        """
-        with patch("events.views.EventForm") as MockEventForm:
-            instance = MockEventForm.return_value
-            instance.is_valid.return_value = True
-            instance.has_changed.return_value = True
-
-            self.client.force_login(self.new_user)
-            self.client.post(self.url, self.event_data)
-
-            MockEventForm.assert_called_once_with(ANY, instance=ANY, is_create=False)
 
     def test_update_view_cannot_change_organiser(self):
         """

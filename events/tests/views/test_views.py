@@ -95,6 +95,15 @@ class ListTestCase(TestCase):
         self.assertTrue(timezone.now() > min(events_ends_at_list))
         self.assertTrue(timezone.now() < max(events_ends_at_list))
 
+    def test_incorrect_filter_returns_404(self):
+        """
+        Test that a 404 is returned if first url parameter "when" invalid
+        """
+
+        url = "events/nonsense/1"
+        response = self.client.get(url)
+        self.assertEqual(response.status_code, HTTPStatus.NOT_FOUND)
+
 
 class ListQueryTestCase(TestCase):
     @classmethod
