@@ -1,10 +1,9 @@
 from datetime import datetime
 
 from django.contrib import messages
-from django.contrib.auth.decorators import login_required
-from django.core.paginator import Paginator
+from django.contrib.auth.mixins import LoginRequiredMixin
 from django.db import models, transaction
-from django.db.models import Count, Max, Min, Q
+from django.db.models import Max, Min
 from django.db.models.functions import Coalesce
 from django.http import (
     Http404,
@@ -13,43 +12,23 @@ from django.http import (
     HttpResponseRedirect,
     JsonResponse,
 )
-from django.shortcuts import get_object_or_404, redirect, render
-from django.urls import reverse
+from django.shortcuts import get_object_or_404
+from django.urls import reverse_lazy
 from django.utils import timezone
+from django.views.generic import (
+    CreateView,
+    DeleteView,
+    DetailView,
+    ListView,
+    UpdateView,
+)
 
 from users.models import User
 
-from .forms import DeleteEventForm, EventForm
-from .models import RSVP, ContributionItem, ContributionRequirement, Event
-
-
-def get_events(request, when="all"):
-    if request.user.is_authenticated:
-        user = User.objects.get(id=request.user.id)
-        if when == "all":
-            events = Event.objects.with_attendance_fields().with_has_user_rsvp(user)
-        elif when == "future":
-            events = (
-                Event.objects.with_attendance_fields()
-                .with_has_user_rsvp(user)
-                .in_future()
-            )
-        elif when == "past":
-            events = (
-                Event.objects.with_attendance_fields()
-                .with_has_user_rsvp(user)
-                .in_past()
-            )
-
-    else:
-        if when == "all":
-            events = Event.objects.with_attendance_fields()
-        elif when == "future":
-            events = Event.objects.with_attendance_fields().in_future()
-        elif when == "past":
-            events = Event.objects.with_attendance_fields().in_past()
-
-    return events
+from .constants import TimeFilterOptions
+from .forms import DeleteEventForm, EventCreateForm, EventForm
+from .mixins import AuthenticatedEventOrganiserMixin
+from .models import RSVP, ContributionItem, Event
 
 
 def get_all_events_maximum_attendees_aggregate():
@@ -59,68 +38,60 @@ def get_all_events_maximum_attendees_aggregate():
     )
 
 
-def event_list(request, when="future", page=1):
-    if when == "all":
-        title = "All Events"
-    elif when == "future":
-        title = "Events"
-    elif when == "past":
-        title = "Past Events"
-    else:
-        raise Http404("Page not found")
+class EventListView(ListView):
+    paginate_by = 5
 
-    events = get_events(request, when)
-    pagination_limit = 5
-    paginator = Paginator(events.order_by("-starts_at"), pagination_limit)
-    page_number = int(page)
-    page_obj = paginator.get_page(page_number)
-    start_index = page_obj.start_index()
-    end_index = page_obj.end_index()
+    def get_time_filter(self) -> tuple[str, models.Q]:
+        when = self.kwargs.get("when", "future")
+        try:
+            return TimeFilterOptions.get_option(when)
+        except ValueError:
+            raise Http404()
 
-    pagination_message = (
-        f"Displaying {start_index} - {end_index} of {len(events)} results."
-    )
+    def get_queryset(self):
+        _, event_order, event_filter = self.get_time_filter()
+        qs = (
+            Event.objects.with_attendance_fields()
+            .filter(event_filter)
+            .order_by(event_order)
+        )
+        if self.request.user.is_authenticated:
+            qs = qs.with_has_user_rsvp(self.request.user)
+        return qs
 
-    context = {
-        "pagination_limit": pagination_limit,
-        "page_obj": page_obj,
-        "pagination_message": pagination_message,
-        "result_count": len(events),
-        "now": timezone.make_aware(datetime.now()),
-        "when": when,
-        "title": title,
-    }
+    def get_context_data(self, **kwargs):
+        title, _, _ = self.get_time_filter()
+        when = self.kwargs.get("when", "future")
 
-    attendees_aggregate = get_all_events_maximum_attendees_aggregate()
-    context["attendees_max"] = attendees_aggregate["max_attendees"]
-    context["attendees_min"] = attendees_aggregate["min_attendees"]
+        attendees_aggregate = get_all_events_maximum_attendees_aggregate()
 
-    return render(request, "events/event_list.html", context)
+        return super().get_context_data(
+            when=when,
+            title=title,
+            attendees_max=attendees_aggregate["max_attendees"],
+            attendees_min=attendees_aggregate["min_attendees"],
+            now=timezone.now(),
+            **kwargs,
+        )
 
 
-def event_detail(request, pk):
-    event = get_object_or_404(get_events(request), pk=pk)
-    subquery = ContributionRequirement.objects.filter(event=event).values(
-        "contribution_item_id"
-    )
-    contribution_requirements = ContributionItem.objects.filter(
-        id__in=models.Subquery(subquery)
-    ).annotate(
-        requirements_count=Count(
-            "contributionrequirement", filter=Q(contributionrequirement__event=event)
-        ),
-        commitments_count=Count(
-            "contributionrequirement__contributioncommitment",
-            filter=Q(contributionrequirement__event=event),
-        ),
-    )
+class EventDetailView(DetailView):
+    def get_queryset(self):
+        qs = Event.objects.with_attendance_fields()
+        if self.request.user.is_authenticated:
+            qs = qs.with_has_user_rsvp(self.request.user)
+        return qs
 
-    context = {
-        "contribution_requirements": contribution_requirements,
-        "event": event,
-        "now": timezone.make_aware(datetime.now()),
-    }
-    return render(request, "events/event_detail.html", context)
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(
+            now=timezone.make_aware(datetime.now()),
+            **kwargs,
+        )
+        event = context["event"]
+        context["contribution_requirements"] = ContributionItem.objects.filter_for_event(
+            event
+        ).with_counts_for_event(event)
+        return context
 
 
 def manage_event_attendance(request, pk, action):
@@ -201,67 +172,42 @@ def manage_event_attendance(request, pk, action):
             return JsonResponse(data, status=403)
 
 
-@login_required
-def event_create_view(request):
-    if request.method == "POST":
-        form = EventForm(request.POST)
-        if form.is_valid():
-            event = form.save(commit=False)
-            event.organiser = request.user
-            event.save()
-            RSVP.objects.create(user=request.user, event=event)
-            messages.success(request, "Event created successfully!")
-            return redirect("event_detail", pk=event.id)
-    else:
-        form = EventForm(initial={"contact": request.user})
-    return render(
-        request,
-        "events/event_form.html",
-        {"form": form, "title": "Create Event", "submit_text": "Create new event"},
-    )
+class EventCreateView(LoginRequiredMixin, CreateView):
+    template_name = "events/event_form.html"
+    form_class = EventCreateForm
+
+    def get_initial(self):
+        initial = super().get_initial()
+        initial["contact"] = self.request.user
+        return initial
+
+    def get_success_url(self):
+        return reverse_lazy("event_detail", args=[self.object.id])
+
+    def form_valid(self, form):
+        event = form.save(commit=False)
+        event.organiser = self.request.user
+        event.save()
+        RSVP.objects.create(user=self.request.user, event=event)
+        messages.success(self.request, "Event created successfully!")
+        return super().form_valid(form)
 
 
-@login_required
-def event_update_view(request, pk):
-    event = get_object_or_404(Event, pk=pk)
-    if event.organiser != request.user:
-        messages.warning(request, "You cannot modify another user's event.")
-        return HttpResponseRedirect(reverse("event_list"))
+class EventUpdateView(AuthenticatedEventOrganiserMixin, UpdateView):
+    form_class = EventForm
+    model = Event
 
-    if request.method == "POST":
-        form = EventForm(request.POST, instance=event, is_create=False)
-        if form.is_valid():
-            if form.has_changed():
-                form.save()
-                messages.success(request, "Event modified successfully!")
-            return redirect("event_detail", pk=event.id)
-    else:
-        form = EventForm(instance=event)
+    def get_success_url(self):
+        return reverse_lazy("event_detail", args=[self.object.id])
 
-    return render(
-        request,
-        "events/event_form.html",
-        {
-            "form": form,
-            "event": event,
-            "title": "Update Event",
-            "submit_text": "Save changes to event",
-        },
-    )
+    def form_valid(self, form):
+        if form.has_changed():
+            messages.success(self.request, "Event modified successfully!")
+        return super().form_valid(form)
 
 
-@login_required
-def event_delete_view(request, pk):
-    event = get_object_or_404(Event, pk=pk)
-    if event.organiser != request.user:
-        messages.warning(request, "You cannot modify another user's event.")
-        return HttpResponseRedirect(reverse("event_list"))
-    if request.method == "POST":
-        form = DeleteEventForm(request.POST)
-        if form.is_valid() and form.cleaned_data["confirm"] == "DELETE":
-            event.delete()
-            messages.info(request, "Event deleted successfully.")
-            return redirect("event_list")
-    else:
-        form = DeleteEventForm()
-    return render(request, "events/event_delete.html", {"form": form, "event": event})
+class EventDeleteView(AuthenticatedEventOrganiserMixin, DeleteView):
+    template_name = "events/event_delete.html"
+    success_url = reverse_lazy("event_list")
+    form_class = DeleteEventForm
+    model = Event
