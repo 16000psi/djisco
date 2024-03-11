@@ -22,18 +22,6 @@ class EventForm(forms.ModelForm):
             "location": forms.Textarea(attrs={"rows": 5}),
         }
 
-    def __init__(self, *args, **kwargs):
-        self.is_create = kwargs.pop("is_create", True)
-        super(EventForm, self).__init__(*args, **kwargs)
-
-    def clean_starts_at(self):
-        starts_at = self.cleaned_data["starts_at"]
-        if self.is_create and starts_at < timezone.now():
-            raise forms.ValidationError(
-                "You cannot create a event in the past!", code="in_past"
-            )
-        return starts_at
-
     def clean_maximum_attendees(self):
         maximum_attendees = self.cleaned_data.get("maximum_attendees")
         if maximum_attendees < 1:
@@ -59,6 +47,16 @@ class EventForm(forms.ModelForm):
                 )
 
         return cleaned_data
+
+
+class EventCreateForm(EventForm):
+    def clean_starts_at(self):
+        starts_at = self.cleaned_data["starts_at"]
+        if starts_at < timezone.now():
+            raise forms.ValidationError(
+                "You cannot create a event in the past!", code="in_past"
+            )
+        return starts_at
 
 
 class DeleteEventForm(forms.Form):
