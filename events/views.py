@@ -71,6 +71,8 @@ class EventListView(ListView):
             attendees_max=attendees_aggregate["max_attendees"],
             attendees_min=attendees_aggregate["min_attendees"],
             now=timezone.now(),
+            button_text_unattend="Cancel",
+            button_text_attend="Join!",
             **kwargs,
         )
 
@@ -84,6 +86,8 @@ class EventDetailView(DetailView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(
+            button_text_unattend="Cancel your attendance",
+            button_text_attend="Join this Event!",
             now=timezone.make_aware(datetime.now()),
             **kwargs,
         )
