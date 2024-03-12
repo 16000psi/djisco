@@ -103,48 +103,7 @@
             {% if user.is_authenticated %}
                 <hr>
             {% endif %}
-            <div class="table-container">
-                <table>
-                    <caption class="sr-only">Contribution Requirements for this Event</caption>
-                    <thead>
-                        <tr>
-                            <th scope="col">Contribution Item</th>
-                            <th scope="col">Required</th>
-                            <th scope="col">Pledged</th>
-                            <th scope="col">Fulfilled</th>
-                            <th scope="col">
-                                <button aria-label="New contribution requirement" class="button button--border">New</button>
-                            </th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <tr>
-                            {% for requirement in contribution_requirements %}
-                                <td class="contribution-title">{{ requirement.title }}</td>
-                                <td>{{ requirement.requirements_count }}</td>
-                                <td>{{ requirement.commitments_count }}</td>
-                                <td>
-                                    {% if requirement.commitments_count >= requirement.requirements_count %}
-                                        <p>Yes</p>
-                                    {% else %}
-                                        <p>No</p>
-                                    {% endif %}
-                                </td>
-                                <td>
-                                    <button aria-label="Edit your pledged contribution" class="button button--border">Edit</button>
-                                </td>
-                                </tr>
-                            {% empty %}
-                                <tr>
-                                    <td colspan="5">
-                                        <p class="empty-table-message">There is no contribution currently required for this event</p>
-                                    </td>
-                                </tr>
-                            {% endfor %}
-                        </tbody>
-                    </table>
-                </div>
-            </div>
+            {% include 'events/contributions_table.html' %}}
         </article>
 
 {% endblock content %}
