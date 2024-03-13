@@ -1,5 +1,24 @@
 
 <div class="table-container">
+
+  <form action="{% url 'contribution_edit' pk=event.id %}" class="contribution-form" method="post">
+      {% csrf_token %}
+      {% for field in form %}
+        <div class="form-group">
+          <label for="{{ field.id_for_label }}">{{ field.label }}</label>
+          {{ field }}
+          {% if field.errors %}
+            <div class="error" role="alert">
+              {{ field.errors }}
+            </div>
+          {% endif %}
+        </div>
+      {% endfor %}
+      <div class="delete-button-container">
+        <button type="submit" class="button button--secondary">Add</button>
+    </div>
+      <input type="hidden" name="redirect_target" value="{{ request.path }}">
+</form>
     <table>
         <caption class="sr-only">Contribution Requirements for this Event</caption>
         <thead>
@@ -9,13 +28,13 @@
                 <th scope="col">Pledged</th>
                 <th scope="col">Fulfilled</th>
                 <th scope="col">
-                    <button aria-label="New contribution requirement" class="button button--border">New</button>
+          <button href="{% url 'contribution_edit' pk=event.pk %}" aria-label="New contribution requirement" class="button button--border">New</button>
                 </th>
             </tr>
         </thead>
         <tbody>
-            <tr>
                 {% for requirement in contribution_requirements %}
+            <tr>
                     <td class="contribution-title">{{ requirement.title }}</td>
                     <td>{{ requirement.requirements_count }}</td>
                     <td>{{ requirement.commitments_count }}</td>
