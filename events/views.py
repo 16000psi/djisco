@@ -12,7 +12,7 @@ from django.http import (
     HttpResponseRedirect,
     JsonResponse,
 )
-from django.shortcuts import get_object_or_404
+from django.shortcuts import get_object_or_404, render
 from django.urls import reverse_lazy
 from django.utils import timezone
 from django.views.generic import (
@@ -26,9 +26,14 @@ from django.views.generic import (
 from users.models import User
 
 from .constants import TimeFilterOptions
-from .forms import DeleteEventForm, EventCreateForm, EventForm
+from .forms import ContributionForm, DeleteEventForm, EventCreateForm, EventForm
 from .mixins import AuthenticatedEventOrganiserMixin
-from .models import RSVP, ContributionItem, Event
+from .models import (
+    RSVP,
+    ContributionItem,
+    ContributionRequirement,
+    Event,
+)
 
 
 def get_all_events_maximum_attendees_aggregate():
@@ -86,15 +91,18 @@ class EventDetailView(DetailView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(
+            form=ContributionForm,
             button_text_unattend="Cancel your attendance",
             button_text_attend="Join this Event!",
             now=timezone.make_aware(datetime.now()),
             **kwargs,
         )
         event = context["event"]
-        context["contribution_requirements"] = ContributionItem.objects.filter_for_event(
+        context[
+            "contribution_requirements"
+        ] = ContributionItem.objects.filter_for_event(event).with_counts_for_event(
             event
-        ).with_counts_for_event(event)
+        )
         return context
 
 
@@ -215,3 +223,35 @@ class EventDeleteView(AuthenticatedEventOrganiserMixin, DeleteView):
     success_url = reverse_lazy("event_list")
     form_class = DeleteEventForm
     model = Event
+
+
+def contribution_edit_view(request, pk):
+    if not request.user.is_authenticated:
+        error_message = "Unauthorised to modify Event attendance"
+        return HttpResponseForbidden(error_message)
+    if request.method == "POST":
+        form = ContributionForm(request.POST)
+        if form.is_valid():
+            cleaned_data = form.cleaned_data
+            redirect_target = request.POST.get("redirect_target", "/")
+            contribution_title = cleaned_data.get("contribution_item")
+            contribution_quantity = cleaned_data.get("quantity")
+
+            contribution_item, _ = ContributionItem.objects.get_or_create(
+                title=contribution_title
+            )
+            event = Event.objects.get(pk=pk)
+
+            for i in range(contribution_quantity):
+                ContributionRequirement.objects.create(
+                    event=event, contribution_item=contribution_item
+                )
+
+            return HttpResponseRedirect(redirect_target)
+    else:
+        form = ContributionForm()
+        return render(
+            request,
+            "events/contribution_edit.html",
+            {"form": form},
+        )

@@ -40,4 +40,9 @@ urlpatterns = [
         views.EventDeleteView.as_view(),
         name="event_delete",
     ),
+    path(
+        "events/<int:pk>/contributions/",
+        views.contribution_edit_view,
+        name="contribution_edit",
+    ),
 ]
