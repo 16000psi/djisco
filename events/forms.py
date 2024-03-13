@@ -1,6 +1,12 @@
 from django import forms
 from django.utils import timezone
-from events.models import Event
+
+from events.models import (
+    ContributionCommitment,
+    ContributionItem,
+    ContributionRequirement,
+    Event,
+)
 
 
 class EventForm(forms.ModelForm):
@@ -69,3 +75,8 @@ class DeleteEventForm(forms.Form):
                 "That doesn't match - are you typing 'DELETE' into the confirmation box?"
             )
         return confirm
+
+
+class ContributionForm(forms.Form):
+    contribution_item = forms.CharField(label="Contribution Name")
+    quantity = forms.IntegerField(min_value=1, label="Quantity")
