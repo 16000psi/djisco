@@ -1,7 +1,7 @@
 class AttendanceForm {
   constructor(node) {
-    this.picnicCard = node;
-    this.attendanceForm = this.picnicCard.querySelector(
+    this.eventCard = node;
+    this.attendanceForm = this.eventCard.querySelector(
       "form[data-attendance-form]",
     );
     if (this.attendanceForm) {
@@ -12,7 +12,7 @@ class AttendanceForm {
   }
 
   getDomData() {
-    this.attendanceDescription = this.picnicCard.querySelector(
+    this.attendanceDescription = this.eventCard.querySelector(
       "p[data-attendance-description]",
     );
     this.attendanceDescriptionType = this.attendanceDescription.getAttribute(
@@ -23,7 +23,7 @@ class AttendanceForm {
     );
     this.loadingSpinner =
       this.attendanceForm.querySelector("div[data-loading]");
-    this.errorMessage = this.picnicCard.querySelector("p[data-error]");
+    this.errorMessage = this.eventCard.querySelector("p[data-error]");
     this.unattendUrl = this.attendanceForm.getAttribute("data-unattend-url");
     this.attendUrl = this.attendanceForm.getAttribute("data-attend-url");
     this.formAction = this.attendanceForm.getAttribute("data-form-action");
@@ -147,8 +147,8 @@ class AttendanceForm {
 }
 
 document.addEventListener("DOMContentLoaded", () => {
-  picnicCardNodeList = document.querySelectorAll("article[data-picnic-card]");
-  picnicCardNodeList.forEach((picnicCard) => {
-    new AttendanceForm(picnicCard);
+  eventCardNodeList = document.querySelectorAll("article[data-event-card]");
+  eventCardNodeList.forEach((eventCard) => {
+    new AttendanceForm(eventCard);
   });
 });
