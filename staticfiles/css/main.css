@@ -179,6 +179,9 @@ h6,
 p,
 time,
 a,
+th,
+td,
+label,
 span {
   color: var(--color--white);
 }
@@ -1147,3 +1150,10 @@ caption {
   background-color: var(--color--coral-dark);
   font-weight: bold;
 }
+
+
+input, select, textarea {
+  background-color: var(--color--martinique);
+  color: var(--color--white);
+}
+
