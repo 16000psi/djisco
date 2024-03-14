@@ -32,20 +32,22 @@
             </tr>
         </thead>
         <tbody>
-                {% for requirement in contribution_requirements %}
+                {% for item in contribution_items %}
             <tr>
-                    <td class="contribution-title">{{ requirement.title }}</td>
-                    <td>{{ requirement.requirements_count }}</td>
-                    <td>{{ requirement.commitments_count }}</td>
+                    <td class="contribution-title">{{ item.title }}</td>
+                    <td>{{ item.requirements_count }}</td>
+                    <td>{{ item.commitments_count }}</td>
                     <td>
-                        {% if requirement.commitments_count >= requirement.requirements_count %}
+                        {% if item.commitments_count >= item.requirements_count %}
                             <p>Yes</p>
                         {% else %}
                             <p>No</p>
                         {% endif %}
                     </td>
                     <td>
-                        <button aria-label="Edit your pledged contribution" class="button button--border">Edit</button>
+<a href="{% url 'commitment_create' pk=event.pk contribution_item_pk=item.pk %}" aria-label="Edit your pledged contribution" class="button button--border">
+    Edit
+</a>
                     </td>
                     </tr>
                 {% empty %}
