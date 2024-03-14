@@ -80,3 +80,19 @@ class DeleteEventForm(forms.Form):
 class ContributionForm(forms.Form):
     contribution_item = forms.CharField(label="Contribution Name")
     quantity = forms.IntegerField(min_value=1, label="Quantity")
+
+
+class CommitmentForm(forms.Form):
+    quantity = forms.IntegerField(min_value=1, label="Quantity")
+
+    def __init__(self, *args, **kwargs):
+        event = kwargs.pop("event")
+        contribution_item = kwargs.pop("contribution_item")
+        super().__init__(*args, **kwargs)
+        unfulfilled_requirements = ContributionRequirement.objects.get_unfulfilled_requirements_for_item_for_event(
+            contribution_item, event
+        )
+        if unfulfilled_requirements is not None:
+            self.fields["quantity"].widget.attrs[
+                "max"
+            ] = unfulfilled_requirements.count()
