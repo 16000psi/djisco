@@ -115,13 +115,17 @@ class RSVP(models.Model):
 
 class ContributionItemQuerySet(models.QuerySet):
     def filter_for_event(self, event):
-        subquery = ContributionRequirement.objects.filter(event=event).values("contribution_item_id")
+        subquery = ContributionRequirement.objects.filter(event=event).values(
+            "contribution_item_id"
+        )
         return self.filter(id__in=models.Subquery(subquery))
 
     def with_counts_for_event(self, event):
         return self.annotate(
             requirements_count=Count(
-                "contributionrequirement", filter=Q(contributionrequirement__event=event)
+                "contributionrequirement",
+                filter=Q(contributionrequirement__event=event),
+                distinct=True,
             ),
             commitments_count=Count(
                 "contributionrequirement__contributioncommitment",
