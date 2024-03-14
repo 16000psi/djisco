@@ -139,20 +139,30 @@ class ContributionItem(models.Model):
     title = models.TextField(unique=True)
 
     def __str__(self):
-        return self.title
+        return f"{self.pk} - {self.title}"
+
+
+class ContributionRequirementQuerySet(models.QuerySet):
+    def get_unfulfilled_requirements_for_item_for_event(self, contribution_item, event):
+        return self.filter(
+            contribution_item=contribution_item, event=event
+        ).exclude(contributioncommitment__isnull=False)
 
 
 class ContributionRequirement(models.Model):
+    objects = ContributionRequirementQuerySet.as_manager()
     event = models.ForeignKey(Event, on_delete=models.CASCADE)
     contribution_item = models.ForeignKey(ContributionItem, on_delete=models.PROTECT)
 
     def __str__(self):
-        return self.contribution_item.title
+        return f"{self.pk} - {self.contribution_item.title}"
 
 
 class ContributionCommitment(models.Model):
     RSVP = models.ForeignKey(RSVP, on_delete=models.CASCADE)
-    contribution_requirement = models.ForeignKey(ContributionRequirement, on_delete=models.RESTRICT)
+    contribution_requirement = models.ForeignKey(
+        ContributionRequirement, on_delete=models.RESTRICT
+    )
 
     def __str__(self):
         return f"{self.RSVP.user} bringing {self.contribution_requirement}"

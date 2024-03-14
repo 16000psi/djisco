@@ -277,14 +277,13 @@ def commitment_create_view(request, pk, contribution_item_pk):
     contribution_item = ContributionItem.objects.get(pk=contribution_item_pk)
 
     if request.method == "POST":
-        form = CommitmentForm(request.POST, contribution_item=contribution_item)
+        form = CommitmentForm(
+            request.POST, event=event, contribution_item=contribution_item
+        )
         if form.is_valid():
             cleaned_data = form.cleaned_data
-            requirements_for_item_for_event = ContributionRequirement.objects.filter(
-                contribution_item=contribution_item, event=event
-            )
-            unfulfilled_requirements = requirements_for_item_for_event.exclude(
-                contributioncommitment__isnull=False
+            unfulfilled_requirements = ContributionRequirement.objects.get_unfulfilled_requirements_for_item_for_event(
+                contribution_item, event
             )
             number_available = unfulfilled_requirements.count()
 
@@ -313,6 +312,6 @@ def commitment_create_view(request, pk, contribution_item_pk):
                 )
             )
     elif request.method == "GET":
-        form = CommitmentForm(contribution_item=contribution_item)
+        form = CommitmentForm(event=event, contribution_item=contribution_item)
         context = {"form": form, "event": event}
         return render(request, "events/commitment_create.html", context)
