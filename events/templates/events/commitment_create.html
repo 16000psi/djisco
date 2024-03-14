@@ -1,0 +1,26 @@
+{% extends "base.html" %}
+
+{% block content %}
+  <div class="layout__single">
+    <h2>Contribute to the Event</h2>
+    <form method="post">
+      {% csrf_token %}
+      {% for field in form %}
+        <div class="form-group">
+          <label for="{{ field.id_for_label }}">{{ field.label }}</label>
+          {{ field }}
+          {% if field.errors %}
+            <div class="error" role="alert">
+              {{ field.errors }}
+            </div>
+          {% endif %}
+        </div>
+      {% endfor %}
+      <div class="delete-button-container">
+        <button type="submit" class="button button--secondary">Contribute</button>
+        <a href="{% url 'event_detail' pk=event.pk %}" class="button button--cancel">Cancel</a>
+      </div>
+      <input type="hidden" name="redirect_target" value="{% url 'event_detail' pk=event.pk %}">
+    </form>
+  </div>
+{% endblock content %}
