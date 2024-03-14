@@ -41,8 +41,13 @@ urlpatterns = [
         name="event_delete",
     ),
     path(
-        "events/<int:pk>/contributions/",
-        views.contribution_edit_view,
-        name="contribution_edit",
+        "events/<int:pk>/requirements/",
+        views.requirement_create_view,
+        name="requirement_create",
+    ),
+    path(
+        "events/<int:pk>/<int:requirement_pk>/commitment",
+        views.commitment_edit_view,
+        name="commitment_edit",
     ),
 ]

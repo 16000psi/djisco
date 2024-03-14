@@ -9,6 +9,7 @@ from django.http import (
     Http404,
     HttpResponseBadRequest,
     HttpResponseForbidden,
+    HttpResponseNotAllowed,
     HttpResponseRedirect,
     JsonResponse,
 )
@@ -26,10 +27,17 @@ from django.views.generic import (
 from users.models import User
 
 from .constants import TimeFilterOptions
-from .forms import ContributionForm, DeleteEventForm, EventCreateForm, EventForm
+from .forms import (
+    CommitmentForm,
+    ContributionForm,
+    DeleteEventForm,
+    EventCreateForm,
+    EventForm,
+)
 from .mixins import AuthenticatedEventOrganiserMixin
 from .models import (
     RSVP,
+    ContributionCommitment,
     ContributionItem,
     ContributionRequirement,
     Event,
@@ -225,7 +233,38 @@ class EventDeleteView(AuthenticatedEventOrganiserMixin, DeleteView):
     model = Event
 
 
-def contribution_edit_view(request, pk):
+def requirement_create_view(request, pk):
+    if not request.user.is_authenticated:
+        error_message = "Unauthorised to modify Event attendance"
+        return HttpResponseForbidden(error_message)
+    if request.method != "POST":
+        return HttpResponseNotAllowed(["POST"])
+    form = ContributionForm(request.POST)
+    if form.is_valid():
+        cleaned_data = form.cleaned_data
+        redirect_target = request.POST.get("redirect_target", "/")
+        contribution_title = cleaned_data.get("contribution_item")
+        contribution_quantity = cleaned_data.get("quantity")
+
+        contribution_item, _ = ContributionItem.objects.get_or_create(
+            title=contribution_title
+        )
+        event = Event.objects.get(pk=pk)
+
+        for i in range(contribution_quantity):
+            ContributionRequirement.objects.create(
+                event=event, contribution_item=contribution_item
+            )
+
+    return HttpResponseRedirect(
+        reverse_lazy(
+            "event_detail",
+            kwargs={"pk": pk},
+        )
+    )
+
+
+def commitment_edit_view(request, pk, requirement_pk):
     if not request.user.is_authenticated:
         error_message = "Unauthorised to modify Event attendance"
         return HttpResponseForbidden(error_message)
