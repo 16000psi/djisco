@@ -105,12 +105,9 @@ class EventDetailView(DetailView):
             now=timezone.make_aware(datetime.now()),
             **kwargs,
         )
-        event = context["event"]
-        context[
-            "contribution_requirements"
-        ] = ContributionItem.objects.filter_for_event(event).with_counts_for_event(
-            event
-        )
+        context["contribution_items"] = ContributionItem.objects.filter_for_event(
+            self.object
+        ).with_counts_for_event(self.object)
         return context
 
 
@@ -235,7 +232,7 @@ class EventDeleteView(AuthenticatedEventOrganiserMixin, DeleteView):
 
 def requirement_create_view(request, pk):
     if not request.user.is_authenticated:
-        error_message = "Unauthorised to modify Event attendance"
+        error_message = "Unauthorised to modify event requirements"
         return HttpResponseForbidden(error_message)
     if request.method != "POST":
         return HttpResponseNotAllowed(["POST"])
@@ -264,33 +261,58 @@ def requirement_create_view(request, pk):
     )
 
 
-def commitment_edit_view(request, pk, requirement_pk):
+def commitment_create_view(request, pk, contribution_item_pk):
     if not request.user.is_authenticated:
-        error_message = "Unauthorised to modify Event attendance"
+        error_message = "Unauthorised to modify event requirements"
         return HttpResponseForbidden(error_message)
+
+    event = Event.objects.get(pk=pk)
+
+    try:
+        rsvp = RSVP.objects.get(user=request.user, event=event)
+    except RSVP.DoesNotExist:
+        error_message = "Unauthorised to modify event requirements"
+        return HttpResponseForbidden(error_message)
+
+    contribution_item = ContributionItem.objects.get(pk=contribution_item_pk)
+
     if request.method == "POST":
-        form = ContributionForm(request.POST)
+        form = CommitmentForm(request.POST, contribution_item=contribution_item)
         if form.is_valid():
             cleaned_data = form.cleaned_data
-            redirect_target = request.POST.get("redirect_target", "/")
-            contribution_title = cleaned_data.get("contribution_item")
-            contribution_quantity = cleaned_data.get("quantity")
-
-            contribution_item, _ = ContributionItem.objects.get_or_create(
-                title=contribution_title
+            requirements_for_item_for_event = ContributionRequirement.objects.filter(
+                contribution_item=contribution_item, event=event
             )
-            event = Event.objects.get(pk=pk)
+            unfulfilled_requirements = requirements_for_item_for_event.exclude(
+                contributioncommitment__isnull=False
+            )
+            number_available = unfulfilled_requirements.count()
 
-            for i in range(contribution_quantity):
-                ContributionRequirement.objects.create(
-                    event=event, contribution_item=contribution_item
+            commitment_quantity = cleaned_data.get("quantity")
+            if commitment_quantity > number_available:
+                messages.warning(
+                    request, f"You can only contribute up to {number_available} items."
+                )
+                return HttpResponseRedirect(
+                    reverse_lazy(
+                        "commitment_create",
+                        kwargs={"pk": pk, "contribution_item_pk": contribution_item_pk},
+                    )
                 )
 
-            return HttpResponseRedirect(redirect_target)
-    else:
-        form = ContributionForm()
-        return render(
-            request,
-            "events/contribution_edit.html",
-            {"form": form},
-        )
+            for i, requirement in enumerate(unfulfilled_requirements):
+                if i < commitment_quantity:
+                    ContributionCommitment.objects.create(
+                        RSVP=rsvp, contribution_requirement=requirement
+                    )
+
+            return HttpResponseRedirect(
+                reverse_lazy(
+                    "event_detail",
+                    kwargs={"pk": pk},
+                )
+            )
+    elif request.method == "GET":
+        form = CommitmentForm(contribution_item=contribution_item)
+        context = {"form": form, "event": event}
+        return render(request, "events/commitment_create.html", context)
