@@ -46,8 +46,8 @@ urlpatterns = [
         name="requirement_create",
     ),
     path(
-        "events/<int:pk>/<int:requirement_pk>/commitment",
-        views.commitment_edit_view,
-        name="commitment_edit",
+        "events/<int:pk>/<int:contribution_item_pk>/commitment",
+        views.commitment_create_view,
+        name="commitment_create",
     ),
 ]
