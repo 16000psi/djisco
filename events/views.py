@@ -289,15 +289,7 @@ def commitment_create_view(request, pk, contribution_item_pk):
 
             commitment_quantity = cleaned_data.get("quantity")
             if commitment_quantity > number_available:
-                messages.warning(
-                    request, f"You can only contribute up to {number_available} items."
-                )
-                return HttpResponseRedirect(
-                    reverse_lazy(
-                        "commitment_create",
-                        kwargs={"pk": pk, "contribution_item_pk": contribution_item_pk},
-                    )
-                )
+                return HttpResponseBadRequest()
 
             for i, requirement in enumerate(unfulfilled_requirements):
                 if i < commitment_quantity:

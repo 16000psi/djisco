@@ -4,8 +4,13 @@ from django.test import TestCase
 from django.urls import reverse
 from django.utils import timezone
 
-from events.models import (RSVP, ContributionCommitment, ContributionItem,
-                           ContributionRequirement, Event)
+from events.models import (
+    RSVP,
+    ContributionCommitment,
+    ContributionItem,
+    ContributionRequirement,
+    Event,
+)
 from users.models import User
 
 
@@ -188,6 +193,16 @@ class CommitmentCreateViewTestCase(TestCase):
         final_commitment_count = ContributionCommitment.objects.count()
         self.assertEqual(initial_commitment_count, final_commitment_count)
 
+    def test_post_request_400_if_quantity_greater_than_available(self):
+        # Arrange
+        self.client.force_login(self.new_user)
+
+        # Act
+        response = self.client.post(self.url, {"quantity": 7})
+
+        # Assert - 400 response
+        self.assertEqual(response.status_code, HTTPStatus.BAD_REQUEST)
+
     def test_post_request_forbidden_if_no_rsvp(self):
         # Arrange
         self.client.force_login(self.user_not_attending)
@@ -198,7 +213,7 @@ class CommitmentCreateViewTestCase(TestCase):
 
         # Assert - Redirects to detail view
         self.assertEqual(response.status_code, HTTPStatus.FORBIDDEN)
-        
+
         # Assert - no commitments created
         final_commitment_count = ContributionCommitment.objects.count()
         self.assertEqual(initial_commitment_count, final_commitment_count)
