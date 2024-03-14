@@ -234,6 +234,10 @@ def requirement_create_view(request, pk):
     if not request.user.is_authenticated:
         error_message = "Unauthorised to modify event requirements"
         return HttpResponseForbidden(error_message)
+    event = Event.objects.get(pk=pk)
+    if request.user != event.organiser:
+        error_message = "Unauthorised to modify event requirements"
+        return HttpResponseForbidden(error_message)
     if request.method != "POST":
         return HttpResponseNotAllowed(["POST"])
     form = ContributionForm(request.POST)
@@ -245,7 +249,6 @@ def requirement_create_view(request, pk):
         contribution_item, _ = ContributionItem.objects.get_or_create(
             title=contribution_title
         )
-        event = Event.objects.get(pk=pk)
 
         contributions = [
             ContributionRequirement(event=event, contribution_item=contribution_item)

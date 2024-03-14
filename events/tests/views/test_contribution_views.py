@@ -18,6 +18,7 @@ class RequirmentCreateViewTestCase(TestCase):
     @classmethod
     def setUpTestData(cls):
         cls.new_user = User.objects.create_user(username="b", password="b")
+        cls.user_not_attending = User.objects.create_user(username="c", password="c")
         cls.event = Event.objects.create(
             title="event01",
             organiser=cls.new_user,
@@ -41,6 +42,11 @@ class RequirmentCreateViewTestCase(TestCase):
         self.assertIn(
             "Unauthorised to modify event requirements", response.content.decode()
         )
+
+    def test_forbidden_if_not_event_organiser(self):
+        self.client.force_login(self.user_not_attending)
+        response = self.client.get(self.url)
+        self.assertEqual(response.status_code, HTTPStatus.FORBIDDEN)
 
     def test_get_method_not_allowed(self):
         self.client.force_login(self.new_user)
