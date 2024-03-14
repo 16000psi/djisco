@@ -250,10 +250,11 @@ def requirement_create_view(request, pk):
         )
         event = Event.objects.get(pk=pk)
 
-        for i in range(contribution_quantity):
-            ContributionRequirement.objects.create(
-                event=event, contribution_item=contribution_item
-            )
+        contributions = [
+            ContributionRequirement(event=event, contribution_item=contribution_item)
+            for _ in range(contribution_quantity)
+        ]
+        ContributionRequirement.objects.bulk_create(contributions)
 
     return HttpResponseRedirect(
         reverse_lazy(
