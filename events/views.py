@@ -242,7 +242,6 @@ def requirement_create_view(request, pk):
     form = ContributionForm(request.POST)
     if form.is_valid():
         cleaned_data = form.cleaned_data
-        redirect_target = request.POST.get("redirect_target", "/")
         contribution_title = cleaned_data.get("contribution_item")
         contribution_quantity = cleaned_data.get("quantity")
 
