@@ -20,7 +20,6 @@
         <button type="submit" class="button button--secondary">Contribute</button>
         <a href="{% url 'event_detail' pk=event.pk %}" class="button button--cancel">Cancel</a>
       </div>
-      <input type="hidden" name="redirect_target" value="{% url 'event_detail' pk=event.pk %}">
     </form>
   </div>
 {% endblock content %}
