@@ -144,9 +144,9 @@ class ContributionItem(models.Model):
 
 class ContributionRequirementQuerySet(models.QuerySet):
     def get_unfulfilled_requirements_for_item_for_event(self, contribution_item, event):
-        return self.filter(
-            contribution_item=contribution_item, event=event
-        ).exclude(contributioncommitment__isnull=False)
+        return self.filter(contribution_item=contribution_item, event=event).exclude(
+            contributioncommitment__isnull=False
+        )
 
 
 class ContributionRequirement(models.Model):
