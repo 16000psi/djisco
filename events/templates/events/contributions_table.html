@@ -46,6 +46,9 @@
                     </td>
                     <td>
 <a href="{% url 'commitment_create' pk=event.pk contribution_item_pk=item.pk %}" aria-label="Edit your pledged contribution" class="button button--border">
+    Contribute
+</a>
+<a href="{% url 'requirement_edit' pk=event.pk contribution_item_pk=item.pk %}" aria-label="Edit your pledged contribution" class="button button--border">
     Edit
 </a>
                     </td>
