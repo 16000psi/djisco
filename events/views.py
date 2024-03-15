@@ -29,6 +29,7 @@ from users.models import User
 from .constants import TimeFilterOptions
 from .forms import (
     CommitmentForm,
+    ContributionEditForm,
     ContributionForm,
     DeleteEventForm,
     EventCreateForm,
@@ -262,6 +263,82 @@ def requirement_create_view(request, pk):
             kwargs={"pk": pk},
         )
     )
+
+
+def requirement_edit_view(request, pk, contribution_item_pk):
+    if not request.user.is_authenticated:
+        error_message = "Unauthorised to modify event requirements"
+        return HttpResponseForbidden(error_message)
+    event = Event.objects.get(pk=pk)
+
+    if request.user != event.organiser:
+        error_message = "Unauthorised to modify event requirements"
+        return HttpResponseForbidden(error_message)
+
+    contribution_item = ContributionItem.objects.with_counts_for_event(event).get(
+        pk=contribution_item_pk
+    )
+
+    if request.method == "POST":
+        form = ContributionEditForm(request.POST, contribution_item=contribution_item)
+        if form.is_valid():
+            cleaned_data = form.cleaned_data
+            new_required_quantity = cleaned_data.get("quantity")
+
+            # If requirements are to be created
+            if new_required_quantity > contribution_item.requirements_count:
+                number_for_creation = (
+                    new_required_quantity - contribution_item.requirements_count
+                )
+                new_requirements = [
+                    ContributionRequirement(
+                        contribution_item=contribution_item, event=event
+                    )
+                    for _ in range(number_for_creation)
+                ]
+                ContributionRequirement.objects.bulk_create(new_requirements)
+
+            # If requirements are to be deleted
+            elif (
+                new_required_quantity < contribution_item.requirements_count
+                and new_required_quantity >= contribution_item.commitments_count
+            ):
+                number_for_deletion = (
+                    contribution_item.requirements_count - new_required_quantity
+                )
+                instances_for_deletion_pks = ContributionRequirement.objects.get_unfulfilled_requirements_for_item_for_event(
+                    contribution_item, event
+                ).values_list(
+                    "pk", flat=True
+                )[
+                    0:number_for_deletion
+                ]
+                if instances_for_deletion_pks:
+                    ContributionRequirement.objects.filter(
+                        pk__in=list(instances_for_deletion_pks)
+                    ).delete()
+
+            return HttpResponseRedirect(
+                reverse_lazy(
+                    "event_detail",
+                    kwargs={"pk": pk},
+                )
+            )
+
+            pass
+            # form = ContributionEditForm(request.POST)
+            # if form.is_valid():
+    else:
+        form = ContributionEditForm(contribution_item=contribution_item)
+
+        context = {"form": form, "event": event, "contribution_item": contribution_item}
+        return render(request, "events/requirement_edit.html", context)
+    # return HttpResponseRedirect(
+    #     reverse_lazy(
+    #         "event_detail",
+    #         kwargs={"pk": pk},
+    #     )
+    # )
 
 
 def commitment_create_view(request, pk, contribution_item_pk):
