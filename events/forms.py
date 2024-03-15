@@ -82,6 +82,19 @@ class ContributionForm(forms.Form):
     quantity = forms.IntegerField(min_value=1, label="Quantity")
 
 
+class ContributionEditForm(forms.Form):
+    quantity = forms.IntegerField(min_value=1, label="Quantity")
+
+    def __init__(self, *args, **kwargs):
+        contribution_item = kwargs.pop("contribution_item", None)
+        super().__init__(*args, **kwargs)
+        if contribution_item is not None:
+            self.fields["quantity"].initial = contribution_item.commitments_count
+            self.fields["quantity"].widget.attrs[
+                "min"
+            ] = contribution_item.commitments_count
+
+
 class CommitmentForm(forms.Form):
     quantity = forms.IntegerField(min_value=1, label="Quantity")
 
