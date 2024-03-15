@@ -41,7 +41,7 @@ urlpatterns = [
         name="event_delete",
     ),
     path(
-        "events/<int:pk>/requirements/",
+        "events/<int:pk>/requirements/new",
         views.requirement_create_view,
         name="requirement_create",
     ),
