@@ -1,6 +1,7 @@
 
 <div class="table-container">
 
+          {% if user == event.organiser %}
   <form action="{% url 'requirement_create' pk=event.id %}" class="contribution-form" method="post">
       {% csrf_token %}
       {% for field in form %}
@@ -18,6 +19,7 @@
         <button type="submit" class="button button--secondary">Add</button>
     </div>
 </form>
+          {% endif %}
     <table>
         <caption class="sr-only">Contribution Requirements for this Event</caption>
         <thead>
@@ -45,12 +47,17 @@
                         {% endif %}
                     </td>
                     <td>
+          {% if event.has_user_rsvp %}
 <a href="{% url 'commitment_create' pk=event.pk contribution_item_pk=item.pk %}" aria-label="Edit your pledged contribution" class="button button--border">
     Contribute
 </a>
+          {% endif %}
+          {% if user == event.organiser %}
+          
 <a href="{% url 'requirement_edit' pk=event.pk contribution_item_pk=item.pk %}" aria-label="Edit your pledged contribution" class="button button--border">
     Edit
 </a>
+          {% endif %}
                     </td>
                     </tr>
                 {% empty %}
