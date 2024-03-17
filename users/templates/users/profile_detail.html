@@ -1,0 +1,9 @@
+{% extends "base.html" %}
+{% load static %}
+{% block title %}Djisco Profile{% endblock title %}
+{% block content %}
+<h2>Profile for user {{ profile }}</h2>
+{% for event in events %}
+<p>{{event}}</p>
+    {% endfor %}
+{% endblock content %}
