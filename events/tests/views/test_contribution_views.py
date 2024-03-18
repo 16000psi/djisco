@@ -201,7 +201,7 @@ class RequirmentEditViewTestCase(TestCase):
         initial_requirements_count = ContributionRequirement.objects.count()
 
         # Act - post a quantity lower than already committed
-        response = self.client.post(self.url, {"quantity": 1})
+        self.client.post(self.url, {"quantity": 1})
 
         # Assert - No change to the number of requirements
         final_requirements_count = ContributionRequirement.objects.count()

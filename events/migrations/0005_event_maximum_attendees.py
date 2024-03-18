@@ -4,15 +4,17 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('events', '0004_contributionitem_remove_contributioncommitment_event_and_more'),
+        (
+            "events",
+            "0004_contributionitem_remove_contributioncommitment_event_and_more",
+        ),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='event',
-            name='maximum_attendees',
+            model_name="event",
+            name="maximum_attendees",
             field=models.IntegerField(default=999999),
             preserve_default=False,
         ),

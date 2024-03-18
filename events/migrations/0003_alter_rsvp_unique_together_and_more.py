@@ -5,19 +5,21 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         migrations.swappable_dependency(settings.AUTH_USER_MODEL),
-        ('events', '0002_initial'),
+        ("events", "0002_initial"),
     ]
 
     operations = [
         migrations.AlterUniqueTogether(
-            name='rsvp',
-            unique_together={('user', 'event')},
+            name="rsvp",
+            unique_together={("user", "event")},
         ),
         migrations.AddConstraint(
-            model_name='event',
-            constraint=models.CheckConstraint(check=models.Q(('ends_at__gt', models.F('starts_at'))), name='end_datetime_after_start_datetime'),
+            model_name="event",
+            constraint=models.CheckConstraint(
+                check=models.Q(("ends_at__gt", models.F("starts_at"))),
+                name="end_datetime_after_start_datetime",
+            ),
         ),
     ]

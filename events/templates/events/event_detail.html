@@ -47,11 +47,10 @@
         <p class="rich-text">{{ event.description }}</p>
         <hr>
         <div class="detail_form_container">
-    {% include 'events/attendance.html' %}
+            {% include 'events/attendance.html' %}
 
             <p data-error class="error hidden" aria-live="polite"></p>
         </div>
-        <div>
             {% if user.is_authenticated %}
                 <hr>
             {% endif %}

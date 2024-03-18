@@ -125,9 +125,7 @@ class ManageEventAttendanceTestCase(TestCase):
         self.client.login(username="c", password="c")
 
         initial_rsvp_count = RSVP.objects.count()
-        self.client.post(
-            reverse("event_attendance", args=[self.event_01.pk, "attend"])
-        )
+        self.client.post(reverse("event_attendance", args=[self.event_01.pk, "attend"]))
 
         final_rsvp_count = RSVP.objects.count()
         self.assertEqual(initial_rsvp_count, final_rsvp_count)

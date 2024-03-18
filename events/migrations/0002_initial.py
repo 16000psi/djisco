@@ -6,48 +6,65 @@ import django.db.models.deletion
 
 
 class Migration(migrations.Migration):
-
     initial = True
 
     dependencies = [
         migrations.swappable_dependency(settings.AUTH_USER_MODEL),
-        ('events', '0001_initial'),
+        ("events", "0001_initial"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='rsvp',
-            name='user',
-            field=models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to=settings.AUTH_USER_MODEL),
+            model_name="rsvp",
+            name="user",
+            field=models.ForeignKey(
+                on_delete=django.db.models.deletion.CASCADE, to=settings.AUTH_USER_MODEL
+            ),
         ),
         migrations.AddField(
-            model_name='event',
-            name='organiser',
-            field=models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='is_organising', to=settings.AUTH_USER_MODEL),
+            model_name="event",
+            name="organiser",
+            field=models.ForeignKey(
+                on_delete=django.db.models.deletion.CASCADE,
+                related_name="is_organising",
+                to=settings.AUTH_USER_MODEL,
+            ),
         ),
         migrations.AddField(
-            model_name='event',
-            name='respondents',
-            field=models.ManyToManyField(through='events.RSVP', to=settings.AUTH_USER_MODEL),
+            model_name="event",
+            name="respondents",
+            field=models.ManyToManyField(
+                through="events.RSVP", to=settings.AUTH_USER_MODEL
+            ),
         ),
         migrations.AddField(
-            model_name='contributionrequirement',
-            name='event',
-            field=models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='events.event'),
+            model_name="contributionrequirement",
+            name="event",
+            field=models.ForeignKey(
+                on_delete=django.db.models.deletion.CASCADE, to="events.event"
+            ),
         ),
         migrations.AddField(
-            model_name='contributioncommitment',
-            name='contribution_requirement',
-            field=models.ForeignKey(null=True, on_delete=django.db.models.deletion.RESTRICT, to='events.contributionrequirement'),
+            model_name="contributioncommitment",
+            name="contribution_requirement",
+            field=models.ForeignKey(
+                null=True,
+                on_delete=django.db.models.deletion.RESTRICT,
+                to="events.contributionrequirement",
+            ),
         ),
         migrations.AddField(
-            model_name='contributioncommitment',
-            name='event',
-            field=models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='events.event'),
+            model_name="contributioncommitment",
+            name="event",
+            field=models.ForeignKey(
+                on_delete=django.db.models.deletion.CASCADE, to="events.event"
+            ),
         ),
         migrations.AddField(
-            model_name='contributioncommitment',
-            name='user',
-            field=models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to=settings.AUTH_USER_MODEL),
+            model_name="contributioncommitment",
+            name="user",
+            field=models.ForeignKey(
+                on_delete=django.db.models.deletion.CASCADE, to=settings.AUTH_USER_MODEL
+            ),
         ),
     ]

@@ -5,55 +5,72 @@ import django.db.models.deletion
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('events', '0003_alter_rsvp_unique_together_and_more'),
+        ("events", "0003_alter_rsvp_unique_together_and_more"),
     ]
 
     operations = [
         migrations.CreateModel(
-            name='ContributionItem',
+            name="ContributionItem",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('title', models.TextField(unique=True)),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                ("title", models.TextField(unique=True)),
             ],
         ),
         migrations.RemoveField(
-            model_name='contributioncommitment',
-            name='event',
+            model_name="contributioncommitment",
+            name="event",
         ),
         migrations.RemoveField(
-            model_name='contributioncommitment',
-            name='title',
+            model_name="contributioncommitment",
+            name="title",
         ),
         migrations.RemoveField(
-            model_name='contributioncommitment',
-            name='user',
+            model_name="contributioncommitment",
+            name="user",
         ),
         migrations.RemoveField(
-            model_name='contributionrequirement',
-            name='title',
+            model_name="contributionrequirement",
+            name="title",
         ),
         migrations.RemoveField(
-            model_name='rsvp',
-            name='status',
+            model_name="rsvp",
+            name="status",
         ),
         migrations.AddField(
-            model_name='contributioncommitment',
-            name='RSVP',
-            field=models.ForeignKey(default=1, on_delete=django.db.models.deletion.CASCADE, to='events.rsvp'),
+            model_name="contributioncommitment",
+            name="RSVP",
+            field=models.ForeignKey(
+                default=1, on_delete=django.db.models.deletion.CASCADE, to="events.rsvp"
+            ),
             preserve_default=False,
         ),
         migrations.AlterField(
-            model_name='contributioncommitment',
-            name='contribution_requirement',
-            field=models.ForeignKey(default=1, on_delete=django.db.models.deletion.RESTRICT, to='events.contributionrequirement'),
+            model_name="contributioncommitment",
+            name="contribution_requirement",
+            field=models.ForeignKey(
+                default=1,
+                on_delete=django.db.models.deletion.RESTRICT,
+                to="events.contributionrequirement",
+            ),
             preserve_default=False,
         ),
         migrations.AddField(
-            model_name='contributionrequirement',
-            name='contribution_item',
-            field=models.ForeignKey(default=1, on_delete=django.db.models.deletion.PROTECT, to='events.contributionitem'),
+            model_name="contributionrequirement",
+            name="contribution_item",
+            field=models.ForeignKey(
+                default=1,
+                on_delete=django.db.models.deletion.PROTECT,
+                to="events.contributionitem",
+            ),
             preserve_default=False,
         ),
     ]

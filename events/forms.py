@@ -2,8 +2,6 @@ from django import forms
 from django.utils import timezone
 
 from events.models import (
-    ContributionCommitment,
-    ContributionItem,
     ContributionRequirement,
     Event,
 )

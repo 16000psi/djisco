@@ -1,25 +1,25 @@
 
 <div class="table-container">
 
-          {% if user == event.organiser %}
-  <form action="{% url 'requirement_create' pk=event.id %}" class="contribution-form" method="post">
-      {% csrf_token %}
-      {% for field in form %}
-        <div class="form-group">
-          <label for="{{ field.id_for_label }}">{{ field.label }}</label>
-          {{ field }}
-          {% if field.errors %}
-            <div class="error" role="alert">
-              {{ field.errors }}
+    {% if user == event.organiser %}
+        <form action="{% url 'requirement_create' pk=event.id %}" class="contribution-form" method="post">
+            {% csrf_token %}
+            {% for field in form %}
+                <div class="form-group">
+                    <label for="{{ field.id_for_label }}">{{ field.label }}</label>
+                    {{ field }}
+                    {% if field.errors %}
+                        <div class="error" role="alert">
+                            {{ field.errors }}
+                        </div>
+                    {% endif %}
+                </div>
+            {% endfor %}
+            <div class="delete-button-container">
+                <button type="submit" class="button button--secondary">Add</button>
             </div>
-          {% endif %}
-        </div>
-      {% endfor %}
-      <div class="delete-button-container">
-        <button type="submit" class="button button--secondary">Add</button>
-    </div>
-</form>
-          {% endif %}
+        </form>
+    {% endif %}
     <table>
         <caption class="sr-only">Contribution Requirements for this Event</caption>
         <thead>
@@ -29,13 +29,13 @@
                 <th scope="col">Pledged</th>
                 <th scope="col">Fulfilled</th>
                 <th scope="col">
-          <button href="{% url 'requirement_create' pk=event.pk %}" aria-label="New contribution requirement" class="button button--border">New</button>
+                    <a href="{% url 'requirement_create' pk=event.pk %}" aria-label="New contribution requirement" class="button button--border">New</a>
                 </th>
             </tr>
         </thead>
         <tbody>
-                {% for item in contribution_items %}
-            <tr>
+            {% for item in contribution_items %}
+                <tr>
                     <td class="contribution-title">{{ item.title }}</td>
                     <td>{{ item.requirements_count }}</td>
                     <td>{{ item.commitments_count }}</td>
@@ -47,27 +47,26 @@
                         {% endif %}
                     </td>
                     <td>
-          {% if event.has_user_rsvp %}
-<a href="{% url 'commitment_create' pk=event.pk contribution_item_pk=item.pk %}" aria-label="Edit your pledged contribution" class="button button--border">
-    Contribute
-</a>
-          {% endif %}
-          {% if user == event.organiser %}
-          
-<a href="{% url 'requirement_edit' pk=event.pk contribution_item_pk=item.pk %}" aria-label="Edit your pledged contribution" class="button button--border">
-    Edit
-</a>
-          {% endif %}
+                        {% if event.has_user_rsvp %}
+                            <a href="{% url 'commitment_create' contribution_item_pk=item.pk pk=event.pk %}" aria-label="Edit your pledged contribution" class="button button--border">
+                                Contribute
+                            </a>
+                        {% endif %}
+                        {% if user == event.organiser %}
+
+                            <a href="{% url 'requirement_edit' contribution_item_pk=item.pk pk=event.pk %}" aria-label="Edit your pledged contribution" class="button button--border">
+                                Edit
+                            </a>
+                        {% endif %}
                     </td>
-                    </tr>
-                {% empty %}
-                    <tr>
-                        <td colspan="5">
-                            <p class="empty-table-message">There is no contribution currently required for this event</p>
-                        </td>
-                    </tr>
-                {% endfor %}
-            </tbody>
-        </table>
-    </div>
+                </tr>
+            {% empty %}
+                <tr>
+                    <td colspan="5">
+                        <p class="empty-table-message">There is no contribution currently required for this event</p>
+                    </td>
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
 </div>

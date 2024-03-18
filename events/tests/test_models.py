@@ -57,9 +57,7 @@ class EventTestCase(TestCase):
         cls.event_oversubscribed = cls.event_queryset.get(pk=2)
         cls.event_past = cls.event_queryset.get(pk=3)
 
-        cls.event_authenticated_queryset = Event.objects.with_has_user_rsvp(
-            new_user_01
-        )
+        cls.event_authenticated_queryset = Event.objects.with_has_user_rsvp(new_user_01)
         cls.event_user_attending = cls.event_authenticated_queryset.get(pk=2)
         cls.event_user_not_attending = cls.event_authenticated_queryset.get(pk=1)
 
