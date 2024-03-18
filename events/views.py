@@ -333,13 +333,6 @@ def requirement_edit_view(request, pk, contribution_item_pk):
 
         context = {"form": form, "event": event, "contribution_item": contribution_item}
         return render(request, "events/requirement_edit.html", context)
-    # return HttpResponseRedirect(
-    #     reverse_lazy(
-    #         "event_detail",
-    #         kwargs={"pk": pk},
-    #     )
-    # )
-
 
 def commitment_create_view(request, pk, contribution_item_pk):
     if not request.user.is_authenticated:
