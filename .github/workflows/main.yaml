@@ -1,0 +1,29 @@
+name: Djisco Python CI
+
+on: [push, pull_request]
+
+jobs:
+  build_and_test:
+    runs-on: ubuntu-latest
+    container:
+      image: python:3.11
+    
+    steps:
+    - uses: actions/checkout@v4
+    - name: Set up Python environment
+      run: |
+        python3.11 -m venv venv
+        source venv/bin/activate
+        python -m pip install --upgrade pip
+        python -m pip install -r requirements.txt
+      shell: bash
+    - name: Run tests and linting
+      run: |
+        chmod +x venv/bin/*
+        source venv/bin/activate
+        python manage.py check
+        python manage.py makemigrations --check --noinput
+        python manage.py test
+        ruff check .
+        djlint --lint .
+      shell: bash
