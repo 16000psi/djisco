@@ -321,9 +321,6 @@ def requirement_edit_view(request, pk, contribution_item_pk):
                 )
             )
 
-            pass
-            # form = ContributionEditForm(request.POST)
-            # if form.is_valid():
     else:
         form = ContributionEditForm(contribution_item=contribution_item)
 
