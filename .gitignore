@@ -1,3 +1,10 @@
+# Env variables
+.env
+
+# Server transfer utilities
+transfer.sh
+djisco.tar.gz
+
 # Python
 __pycache__/
 **/__pycache__/

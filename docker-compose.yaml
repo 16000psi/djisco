@@ -1,0 +1,29 @@
+version: "3.4"
+services:
+  db:
+    image: postgres
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB}
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+
+  web:
+    build: .
+    command: gunicorn djisco.wsgi:application --bind 0.0.0.0:8050
+    volumes:
+      - .:/code
+    ports:
+      - "8050:8050"
+    depends_on:
+      - db
+    environment:
+      DJANGO_SECRET_KEY: ${DJANGO_SECRET_KEY}
+      POSTGRES_DB: ${POSTGRES_DB}
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      DJANGO_SETTINGS_MODULE: djisco.settings.prod
+
+volumes:
+  postgres_data:
