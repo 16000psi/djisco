@@ -3,6 +3,7 @@
 {% block content %}
     <div class="layout">
         <div class="grid grid--sidebar">
+
             <div class="title_bar">
                 <h2 class="title">{{ title }}</h2>
                 <div class="top__pagination">
@@ -22,7 +23,7 @@
                     {% endif %}
                 </div>
             </div>
-            <a href="{% url 'event_new' %}" class="button button--primary">Create a new event</a>
+            <a href="{% url 'event_new' %}" class="button button--new-event"><span class="button--new-event__text">Create event</span></a>
         </div>
         <div class="grid grid--sidebar">
             <div>
@@ -51,7 +52,7 @@
                     {% endif %}
                 </div>
             </div>
-            <div class="grid__item">
+            <div class="animated-sidebar grid__item">
                 {% if when == "past" %}
                     <a class="active-link sidebar--link" href="{% url 'event_list' when='future' page=page_obj.number %}">
                         - Past Events
