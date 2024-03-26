@@ -19,6 +19,24 @@ DATABASES = {
     }
 }
 
-STATIC_ROOT = "/app/static/"
+# STATIC_ROOT = "/app/static/"
+
+STATIC_ROOT = os.path.join(BASE_DIR, 'collected_static') # noqa: F405
 
 SECRET_KEY = os.getenv("DJANGO_SECRET_KEY")
+
+LOGGING = {
+    'version': 1,
+    'disable_existing_loggers': False,
+    'handlers': {
+        'console': {
+            'class': 'logging.StreamHandler',
+        },
+    },
+    'loggers': {
+        'django': {
+            'handlers': ['console'],
+            'level': 'INFO',
+        },
+    },
+}

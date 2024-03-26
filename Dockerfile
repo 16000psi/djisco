@@ -11,7 +11,7 @@ ENV PYTHONDONTWRITEBYTECODE 1
 ENV PYTHONUNBUFFERED 1
 
 # Set the working directory in the container
-WORKDIR /app
+WORKDIR /usr/src/app
 
 # Install system dependencies
 RUN apt-get update && apt-get install -y --no-install-recommends \
@@ -20,18 +20,18 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     && rm -rf /var/lib/apt/lists/*
 
 # Install Python dependencies
-COPY requirements.txt /app/
+# Adjust this line to ensure requirements.txt is copied to the WORKDIR
+COPY requirements.txt .
 RUN pip install --upgrade pip && pip install -r requirements.txt
 
-# Copy the current directory contents into the container at /app/
-COPY . /app/
+# Copy the current directory contents into the container at WORKDIR
+COPY . .
 
 # Collect static files
-RUN python manage.py collectstatic --no-input
+RUN python manage.py collectstatic --no-input --settings=djisco.settings.prod
 
 # Make port 8050 available to the world outside this container
 EXPOSE 8050
 
-
 # Run gunicorn when the container launches
-CMD ["gunicorn", "djisco.wsgi:application", "--bind", "0.0.0.0:8050"]
+CMD ["gunicorn", "djisco.wsgi:application", "--bind", "0.0.0.0:8050", "--log-level", "debug", "--access-logfile", "-"]

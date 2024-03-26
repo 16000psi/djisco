@@ -13,7 +13,8 @@ services:
     build: .
     command: gunicorn djisco.wsgi:application --bind 0.0.0.0:8050
     volumes:
-      - .:/code
+      - .:/usr/src/app
+      - static_volume:/usr/src/app/collected_static
     ports:
       - "8050:8050"
     depends_on:
@@ -25,5 +26,18 @@ services:
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
       DJANGO_SETTINGS_MODULE: djisco.settings.prod
 
+      
+  nginx:
+    image: nginx:latest
+    ports:
+      - "80:80"
+    volumes:
+      - ./nginx:/etc/nginx/conf.d
+      - static_volume:/app/collected_static
+    depends_on:
+      - web
+
+
 volumes:
   postgres_data:
+  static_volume:
