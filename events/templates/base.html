@@ -17,7 +17,7 @@
             <div class="header__inner">
                 <h1><a href="{% url 'event_list' %}" class="app-logo">Djisco</a></h1>
                 {% if user.is_authenticated %}
-                    <p>You are logged in as <strong>{{ user.username }}</strong>.</p>
+                    <p class="logged-in-message">You are logged in as <strong>{{ user.username }}</strong>.</p>
                 {% endif %}
                 <nav role="navigation" aria-label="Main" class="header__navigation">
                     {% if user.is_authenticated %}
