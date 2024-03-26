@@ -69,9 +69,11 @@ header {
   align-items: center;
   justify-content: space-between;
   max-width: 1280px;
-  margin: 0 auto;
+  min-width: 320px;
   padding: 10px;
 }
+
+/* Header h1 styles */
 
 /* logo glow animation */
 @keyframes oscillateTextShadow {
@@ -91,15 +93,40 @@ h1 {
   padding-left: 40px;
   animation: oscillateTextShadow 2s infinite;
 }
+h1:hover {
+  animation: oscillateTextShadow 0.2s infinite;
+}
+
+/* Header nav styles */
+
 .header__navigation {
   padding-right: 20px;
   font-style: italic;
 }
 
-.header__navigation-link{
+.header__navigation-link {
   padding-left: 15px;
 }
 
-.logged-in-message{
+.header__navigation-link:hover {
+  color: #3beccd;
+  color: var(--color--coral);
+}
+.header__navigation-link:hover::after {
+  opacity: 1;
+  transform: translateY(0);
+  background-color: #3beccd;
+  background-color: var(--color--lagoon);
+}
+.header__navigation-link:focus:hover {
+  color: red;
+}
+.header__navigation-link:focus::after {
+  display: none;
+}
+
+/* logged in message styles */
+
+.logged-in-message {
   color: var(--color--light-grey);
 }
