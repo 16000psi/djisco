@@ -11,11 +11,11 @@ services:
 
   web:
     build: .
-    command: gunicorn djisco.wsgi:application --bind 0.0.0.0:8050
+    command: gunicorn djisco.wsgi:application --bind 0.0.0.0:8051
     volumes:
       - .:/usr/src/app
     ports:
-      - "8050:8050"
+      - "8051:8051"
     depends_on:
       - db
     environment:
@@ -29,7 +29,7 @@ services:
   nginx:
     image: nginx:latest
     ports:
-      - "80:80"
+      - "8050:8050"
     volumes:
       - ./nginx:/etc/nginx/conf.d
       - static_volume:/usr/src/app/collected_static

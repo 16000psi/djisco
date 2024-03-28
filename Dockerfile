@@ -31,7 +31,7 @@ COPY . .
 RUN python manage.py collectstatic --no-input --settings=djisco.settings.prod
 
 # Make port 8050 available to the world outside this container
-EXPOSE 8050
+EXPOSE 8051
 
 # Run gunicorn when the container launches
-CMD ["gunicorn", "djisco.wsgi:application", "--bind", "0.0.0.0:8050", "--log-level", "debug", "--access-logfile", "-"]
+CMD ["gunicorn", "djisco.wsgi:application", "--bind", "0.0.0.0:8051", "--log-level", "debug", "--access-logfile", "-"]
