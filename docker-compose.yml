@@ -14,7 +14,6 @@ services:
     command: gunicorn djisco.wsgi:application --bind 0.0.0.0:8050
     volumes:
       - .:/usr/src/app
-      - static_volume:/usr/src/app/collected_static
     ports:
       - "8050:8050"
     depends_on:
@@ -33,7 +32,7 @@ services:
       - "80:80"
     volumes:
       - ./nginx:/etc/nginx/conf.d
-      - static_volume:/app/collected_static
+      - static_volume:/usr/src/app/collected_static
     depends_on:
       - web
 
