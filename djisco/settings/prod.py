@@ -2,8 +2,8 @@ import os
 
 from .base import *  # noqa: F401, F403
 
-# DEBUG = False
-DEBUG = True
+DEBUG = False
+# DEBUG = True
 
 # ALLOWED_HOSTS.append(".davesmith.io")  # noqa: F405
 ALLOWED_HOSTS.append("*")  # noqa: F405
