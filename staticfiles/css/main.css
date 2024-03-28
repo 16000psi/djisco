@@ -136,6 +136,7 @@ h1:hover {
   padding: 10px 20px 40px 10px;
   max-width: 1280px;
   margin: 0 auto;
+  background-color: var(--color--steel-gray);
 }
 .layout__article {
   margin-bottom: 40px;
@@ -209,8 +210,9 @@ h1:hover {
   border-top-right-radius: 5px;
 }
 .button--new-event__text {
-  transform: scaleX(1.8);
+  transform: scaleX(0.8);
   transform-origin: center;
   font-style: italic;
   display: inline-block;
+  font-size: 12px;
 }
