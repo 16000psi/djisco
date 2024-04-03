@@ -1,3 +1,4 @@
+
 name: Djisco Python CI
 
 on: [push, pull_request]
@@ -7,6 +8,8 @@ jobs:
     runs-on: ubuntu-latest
     container:
       image: python:3.11
+    env:
+      SECRET_KEY: ${{ secrets.SECRET_KEY }}
     
     steps:
     - uses: actions/checkout@v4
