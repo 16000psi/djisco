@@ -1,16 +1,18 @@
 import os
+from dotenv import load_dotenv
 
 from .base import *  # noqa: F401, F403
 
-DEBUG = False
-# DEBUG = True
+load_dotenv()
 
-# ALLOWED_HOSTS.append(".davesmith.io")  # noqa: F405
-ALLOWED_HOSTS.append("*")  # noqa: F405
+DEBUG = False
+
+ALLOWED_HOSTS.append("www.djisco.davesmith.io")  # noqa: F405
+
 
 DATABASES = {
     "default": {
-        "ENGINE": "django.db.backends.postgresql",
+        "ENGINE": "django.db.backends.postgresql_psycopg2",
         "NAME": os.getenv("POSTGRES_DB"),
         "USER": os.getenv("POSTGRES_USER"),
         "PASSWORD": os.getenv("POSTGRES_PASSWORD"),
@@ -18,8 +20,6 @@ DATABASES = {
         "PORT": "5432",
     }
 }
-
-# STATIC_ROOT = "/app/static/"
 
 STATIC_ROOT = os.path.join(BASE_DIR, "collected_static")  # noqa: F405
 
