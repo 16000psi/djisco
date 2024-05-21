@@ -21,7 +21,7 @@ DATABASES = {
     }
 }
 
-STATIC_ROOT = os.path.join(BASE_DIR, "collected_static")  # noqa: F405
+STATIC_ROOT = os.getenv("DJANGO_STATIC_ROOT")  # noqa: F405
 
 SECRET_KEY = os.getenv("DJANGO_SECRET_KEY")
 
