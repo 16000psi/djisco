@@ -8,6 +8,7 @@ load_dotenv()
 DEBUG = False
 
 ALLOWED_HOSTS.append("www.djisco.davesmith.io")  # noqa: F405
+ALLOWED_HOSTS.append("djisco.davesmith.io")  # noqa: F405
 
 
 DATABASES = {
