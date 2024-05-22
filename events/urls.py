@@ -7,6 +7,7 @@ register_converter(converters.WhenConverter, "when")
 urlpatterns = [
     path("accounts/", include("django.contrib.auth.urls")),
     path("events/", views.EventListView.as_view(), name="event_list"),
+    path("", views.home_view, name="home"),
     path("events/<int:pk>/", views.EventDetailView.as_view(), name="event_detail"),
     path(
         "events/<when:when>/<int:page>/",

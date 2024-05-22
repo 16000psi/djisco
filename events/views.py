@@ -13,7 +13,7 @@ from django.http import (
     HttpResponseRedirect,
     JsonResponse,
 )
-from django.shortcuts import get_object_or_404, render
+from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse_lazy
 from django.utils import timezone
 from django.views.generic import (
@@ -50,6 +50,10 @@ def get_all_events_maximum_attendees_aggregate():
         max_attendees=Coalesce(Max("maximum_attendees"), 0),
         min_attendees=Coalesce(Min("maximum_attendees"), 0),
     )
+
+
+def home_view(request):
+    return redirect("event_list")
 
 
 class EventListView(ListView):
@@ -308,7 +312,11 @@ def requirement_edit_view(request, pk, contribution_item_pk):
                 )
                 instances_for_deletion_pks = ContributionRequirement.objects.get_unfulfilled_requirements_for_item_for_event(
                     contribution_item, event
-                ).values_list("pk", flat=True)[0:number_for_deletion]
+                ).values_list(
+                    "pk", flat=True
+                )[
+                    0:number_for_deletion
+                ]
                 if instances_for_deletion_pks:
                     ContributionRequirement.objects.filter(
                         pk__in=list(instances_for_deletion_pks)
