@@ -27,7 +27,6 @@
         </div>
         <div class="grid grid--sidebar">
             <div>
-                <p class="subtitle">We have events ranging from {{ attendees_min }} to {{ attendees_max }} attendees.</p>
                 {% for event in page_obj %}
                     {% include "events/event_list_card.html" %}
                 {% endfor %}

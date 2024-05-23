@@ -45,13 +45,6 @@ from .models import (
 )
 
 
-def get_all_events_maximum_attendees_aggregate():
-    return Event.objects.aggregate(
-        max_attendees=Coalesce(Max("maximum_attendees"), 0),
-        min_attendees=Coalesce(Min("maximum_attendees"), 0),
-    )
-
-
 def home_view(request):
     return redirect("event_list")
 
@@ -81,13 +74,10 @@ class EventListView(ListView):
         title, _, _ = self.get_time_filter()
         when = self.kwargs.get("when", "future")
 
-        attendees_aggregate = get_all_events_maximum_attendees_aggregate()
 
         return super().get_context_data(
             when=when,
             title=title,
-            attendees_max=attendees_aggregate["max_attendees"],
-            attendees_min=attendees_aggregate["min_attendees"],
             now=timezone.now(),
             button_text_unattend="Cancel",
             button_text_attend="Join!",

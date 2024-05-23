@@ -6,9 +6,8 @@ from django.test import TestCase
 from django.test.utils import CaptureQueriesContext
 from django.urls import reverse
 from django.utils import timezone
-from events.models import Event
-from events.views import get_all_events_maximum_attendees_aggregate
 
+from events.models import Event
 from users.models import User
 
 
@@ -159,69 +158,6 @@ class DetailTestCase(TestCase):
         response = self.client.get(url)
 
         self.assertEqual(response.status_code, HTTPStatus.OK)
-
-
-class GetAttendeeAggregateTestCase(TestCase):
-    @classmethod
-    def setUpTestData(cls):
-        new_user = User.objects.create(username="b", password="b")
-        cls.event_01 = Event.objects.create(
-            title="event01",
-            organiser=new_user,
-            contact=new_user,
-            starts_at=timezone.make_aware(datetime(2025, 10, 10, 14, 30, 0)),
-            ends_at=timezone.make_aware(datetime(2026, 10, 10, 15, 30, 0)),
-            location="here",
-            description="brillientay",
-            maximum_attendees=20,
-        )
-        cls.event_02 = Event.objects.create(
-            title="event01",
-            organiser=new_user,
-            contact=new_user,
-            starts_at=timezone.make_aware(datetime(2025, 10, 10, 14, 30, 0)),
-            ends_at=timezone.make_aware(datetime(2026, 10, 10, 15, 30, 0)),
-            location="here",
-            description="brillientay",
-            maximum_attendees=1,
-        )
-
-    def test_max_attendees(self):
-        """
-        get_attendees_aggregate gives max_attendees.
-
-        get_attendees_aggregate is used by the list view to retreive
-        the smallest and largest maximum_attendees from the entire
-        event dataset, and then this info is passed to the template
-        in context.  This test checks that the larger value max_attendees
-        is correct.
-        """
-
-        attendee_aggregate = get_all_events_maximum_attendees_aggregate()
-        expected_max_attendees = 20
-        actual_max_attendees = attendee_aggregate["max_attendees"]
-        self.assertEqual(
-            expected_max_attendees,
-            actual_max_attendees,
-        )
-
-    def test_min_attendees(self):
-        """
-        get_attendees_aggregate gives min_attendees.
-
-        get_attendees_aggregate is used by the list view to retreive
-        event dataset, and then this info is passed to the template
-        in context.  This test checks that the smaller value min_attendees
-        is correct.
-        """
-
-        attendee_aggregate = get_all_events_maximum_attendees_aggregate()
-        expected_min_attendees = 1
-        actual_min_attendees = attendee_aggregate["min_attendees"]
-        self.assertEqual(
-            expected_min_attendees,
-            actual_min_attendees,
-        )
 
 
 class LoginViewTestCase(TestCase):
