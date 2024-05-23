@@ -3,8 +3,6 @@ from datetime import datetime
 from django.contrib import messages
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.db import models, transaction
-from django.db.models import Max, Min
-from django.db.models.functions import Coalesce
 from django.http import (
     Http404,
     HttpResponseBadRequest,
@@ -73,7 +71,6 @@ class EventListView(ListView):
     def get_context_data(self, **kwargs):
         title, _, _ = self.get_time_filter()
         when = self.kwargs.get("when", "future")
-
 
         return super().get_context_data(
             when=when,
@@ -302,11 +299,7 @@ def requirement_edit_view(request, pk, contribution_item_pk):
                 )
                 instances_for_deletion_pks = ContributionRequirement.objects.get_unfulfilled_requirements_for_item_for_event(
                     contribution_item, event
-                ).values_list(
-                    "pk", flat=True
-                )[
-                    0:number_for_deletion
-                ]
+                ).values_list("pk", flat=True)[0:number_for_deletion]
                 if instances_for_deletion_pks:
                     ContributionRequirement.objects.filter(
                         pk__in=list(instances_for_deletion_pks)

@@ -1,3 +1,4 @@
+import random
 from datetime import timedelta
 
 from django.utils import timezone
@@ -5,22 +6,10 @@ from django.utils import timezone
 
 def generate_datetimes():
     now = timezone.now()
-    past_datetimes = [
-        now - timedelta(days=10, hours=2),
-        now - timedelta(days=9, hours=4),
-        now - timedelta(days=8, hours=3),
-        now - timedelta(days=7, hours=1),
-        now - timedelta(days=6, hours=5),
-    ]
-    future_datetimes = [
-        now + timedelta(days=1, hours=2),
-        now + timedelta(days=2, hours=3),
-        now + timedelta(days=3, hours=1),
-        now + timedelta(days=4, hours=4),
-        now + timedelta(days=5, hours=5),
-    ]
+    last_6_months = [now - timedelta(days=random.randint(0, 180)) for _ in range(15)]
+    next_6_months = [now + timedelta(days=random.randint(0, 180)) for _ in range(15)]
 
-    return past_datetimes + future_datetimes
+    return last_6_months + next_6_months
 
 
 start_times = generate_datetimes()
@@ -105,5 +94,165 @@ events_data = [
         "ends_at": start_times[9] + timedelta(hours=5),
         "location": "789 Tranquility Base, Oxford",
         "description": "Day-long retreat focused on wellness and mindfulness.",
+    },
+    {
+        "title": "Music Festival",
+        "maximum_attendees": 137,
+        "starts_at": start_times[10],
+        "ends_at": start_times[10] + timedelta(hours=2),
+        "location": "Park Avenue, City A",
+        "description": "A lively music festival featuring local bands.",
+    },
+    {
+        "title": "Art Exhibit",
+        "maximum_attendees": 111,
+        "starts_at": start_times[11],
+        "ends_at": start_times[11] + timedelta(hours=2),
+        "location": "Main Street Gallery, City B",
+        "description": "An exhibition showcasing contemporary art.",
+    },
+    {
+        "title": "Food Fair",
+        "maximum_attendees": 165,
+        "starts_at": start_times[12],
+        "ends_at": start_times[12] + timedelta(hours=2),
+        "location": "Market Square, City C",
+        "description": "A fair featuring a variety of local cuisines.",
+    },
+    {
+        "title": "Science Expo",
+        "maximum_attendees": 199,
+        "starts_at": start_times[13],
+        "ends_at": start_times[13] + timedelta(hours=2),
+        "location": "Tech Park, City D",
+        "description": "An expo showcasing the latest in scientific research.",
+    },
+    {
+        "title": "Book Reading",
+        "maximum_attendees": 41,
+        "starts_at": start_times[14],
+        "ends_at": start_times[14] + timedelta(hours=2),
+        "location": "Library Hall, City E",
+        "description": "A reading session with a renowned author.",
+    },
+    {
+        "title": "Yoga Workshop",
+        "maximum_attendees": 83,
+        "starts_at": start_times[15],
+        "ends_at": start_times[15] + timedelta(hours=2),
+        "location": "Peace Center, City F",
+        "description": "A workshop focusing on yoga and meditation.",
+    },
+    {
+        "title": "Marathon",
+        "maximum_attendees": 46,
+        "starts_at": start_times[16],
+        "ends_at": start_times[16] + timedelta(hours=2),
+        "location": "Central Park, City G",
+        "description": "An annual marathon event for charity.",
+    },
+    {
+        "title": "Film Festival",
+        "maximum_attendees": 126,
+        "starts_at": start_times[17],
+        "ends_at": start_times[17] + timedelta(hours=2),
+        "location": "Cineplex, City H",
+        "description": "A festival showcasing independent films.",
+    },
+    {
+        "title": "Dance Competition",
+        "maximum_attendees": 84,
+        "starts_at": start_times[18],
+        "ends_at": start_times[18] + timedelta(hours=2),
+        "location": "Community Center, City I",
+        "description": "A competition featuring dance groups from various schools.",
+    },
+    {
+        "title": "Coding Hackathon",
+        "maximum_attendees": 134,
+        "starts_at": start_times[19],
+        "ends_at": start_times[19] + timedelta(hours=2),
+        "location": "Innovation Hub, City J",
+        "description": "A hackathon event for coders to develop innovative solutions.",
+    },
+    {
+        "title": "Charity Ball",
+        "maximum_attendees": 198,
+        "starts_at": start_times[20],
+        "ends_at": start_times[20] + timedelta(hours=2),
+        "location": "Grand Hotel, City K",
+        "description": "A ball to raise funds for local charities.",
+    },
+    {
+        "title": "Startup Pitch",
+        "maximum_attendees": 178,
+        "starts_at": start_times[21],
+        "ends_at": start_times[21] + timedelta(hours=2),
+        "location": "Business Incubator, City L",
+        "description": "An event for startups to pitch their ideas to investors.",
+    },
+    {
+        "title": "Photography Workshop",
+        "maximum_attendees": 138,
+        "starts_at": start_times[22],
+        "ends_at": start_times[22] + timedelta(hours=2),
+        "location": "Art Studio, City M",
+        "description": "A workshop for photography enthusiasts.",
+    },
+    {
+        "title": "History Lecture",
+        "maximum_attendees": 45,
+        "starts_at": start_times[23],
+        "ends_at": start_times[23] + timedelta(hours=2),
+        "location": "History Museum, City N",
+        "description": "A lecture on ancient civilizations.",
+    },
+    {
+        "title": "Theater Play",
+        "maximum_attendees": 92,
+        "starts_at": start_times[24],
+        "ends_at": start_times[24] + timedelta(hours=2),
+        "location": "Downtown Theater, City O",
+        "description": "A play by a local theater group.",
+    },
+    {
+        "title": "Gardening Workshop",
+        "maximum_attendees": 48,
+        "starts_at": start_times[25],
+        "ends_at": start_times[25] + timedelta(hours=2),
+        "location": "Botanical Gardens, City P",
+        "description": "A workshop on urban gardening techniques.",
+    },
+    {
+        "title": "Language Exchange",
+        "maximum_attendees": 35,
+        "starts_at": start_times[26],
+        "ends_at": start_times[26] + timedelta(hours=2),
+        "location": "Cultural Center, City Q",
+        "description": "An event for practicing different languages.",
+    },
+    {
+        "title": "Chess Tournament",
+        "maximum_attendees": 188,
+        "starts_at": start_times[27],
+        "ends_at": start_times[27] + timedelta(hours=2),
+        "location": "Game Hall, City R",
+        "description": "A tournament for chess enthusiasts.",
+    },
+    {
+        "title": "Career Fair",
+        "maximum_attendees": 115,
+        "starts_at": start_times[28],
+        "ends_at": start_times[28] + timedelta(hours=2),
+        "location": "Convention Center, City S",
+        "description": "A fair for job seekers and employers.",
+    },
+    {
+        "title": "Culinary Class",
+        "maximum_attendees": 118,
+        "starts_at": start_times[29],
+        "ends_at": start_times[29] + timedelta(hours=2),
+        "location": "Cooking School, City T",
+        "description": "A class on gourmet cooking techniques.",
     },
 ]
