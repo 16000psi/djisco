@@ -22,12 +22,65 @@
   --color--focus-bg: #ffbf47;
   --color--border: #eee;
   --color--steel-gray: #241e31;
+  --color--black-russian: #03001c;
+  /* Opacities for white */
+  --color--white-opacity-0: rgba(255, 255, 255, 0);
+  --color--white-opacity-1: rgba(255, 255, 255, 0.05);
+  --color--white-opacity-2: rgba(255, 255, 255, 0.07);
+  --color--white-opacity-3: rgba(255, 255, 255, 0.08);
+  --color--white-opacity-5: rgba(255, 255, 255, 0.09);
+  --color--white-opacity-6: rgba(255, 255, 255, 0.11);
+  --color--white-opacity-7: rgba(255, 255, 255, 0.12);
+  --color--white-opacity-8: rgba(255, 255, 255, 0.14);
+  --color--white-opacity-9: rgba(255, 255, 255, 0.15);
 }
 
 /* Margin reset */
 
 * {
   margin: 0;
+}
+
+/* BASE FONT SIZES */
+html {
+  font-size: 16px; /* Base font size for mobile */
+}
+
+body {
+  font-size: 1rem; /* 16px */
+}
+
+h1 {
+  font-size: 2rem; /* 32px */
+}
+
+h2 {
+  font-size: 1.75rem; /* 28px */
+}
+
+p {
+  font-size: 1rem; /* 16px */
+}
+
+/* Styles for tablets and larger screens */
+@media (min-width: 768px) {
+  html {
+    font-size: 18px; /* Base font size for tablets */
+  }
+}
+
+/* Styles for desktops and larger screens */
+@media (min-width: 992px) {
+  html {
+    font-size: 20px; /* Base font size for desktops */
+  }
+}
+
+/* Styles for large desktops and larger screens */
+@media (min-width: 1200px) {
+  html {
+    font-size: 22px; /* Base font size for large desktops */
+  }
 }
 
 /* BASE FONT */
@@ -39,7 +92,7 @@ html {
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   scroll-behavior: smooth;
-  background-color: var(--color--big-stone);
+  background-color: var(--color--black-russian);
   color: var(--color--white);
 }
 
@@ -62,7 +115,8 @@ span {
 *   */
 
 header {
-  background-color: var(--color--martinique);
+  background-color: var(--color--white-opacity-0);
+  border-bottom: 1px solid var(--color--white-opacity-9);
 }
 
 .header__inner {
@@ -136,7 +190,7 @@ h1:hover {
   padding: 10px 20px 40px 10px;
   max-width: 1280px;
   margin: 0 auto;
-  background-color: var(--color--steel-gray);
+  background-color: var(--color--black-russian);
 }
 .layout__article {
   margin-bottom: 40px;
@@ -214,5 +268,14 @@ h1:hover {
   transform-origin: center;
   font-style: italic;
   display: inline-block;
-  font-size: 12px;
+  font-size: 0.75rem;
+}
+@media (min-width: 768px) {
+  /* Styles for tablets and larger screens */
+}
+@media (min-width: 992px) {
+  /* Styles for desktops and larger screens */
+}
+@media (min-width: 1200px) {
+  /* Styles for large desktops and larger screens */
 }
