@@ -5,6 +5,7 @@
         <meta charset="UTF-8">
         <meta name="description" content="Organise Events!">
         <meta name="keywords" content="Event,food,guests">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Open+Sans">
         <link rel="icon" href="{% static 'favicon.png' %}" type="image/x-icon">
         {% block css %}
@@ -16,7 +17,7 @@
     <body>
         <header class="header">
             <div class="header__inner">
-                <h1><a href="{% url 'event_list' %}" class="app-logo">Djisco</a></h1>
+                <h1 data-text="Djisco" class="app-logo"><a href="{% url 'event_list' %}">Djisco</a></h1>
                 {% if user.is_authenticated %}
                     <p class="logged-in-message">You are logged in as <strong>{{ user.username }}</strong>.</p>
                 {% endif %}
