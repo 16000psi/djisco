@@ -235,29 +235,40 @@ header {
   padding: 10px 20px 40px 10px;
   max-width: 1280px;
   margin: 0 auto;
-  background-color: var(--color--black-russian);
 }
-.layout__article {
-  margin-bottom: 40px;
-  border-top: 1px solid #eee;
-  border-top: 1px solid var(--color--border);
-  padding: 40px 0;
+
+/* ---------------------- */
+/* CARD STYLE */
+/* ---------------------- */
+
+/* General card styles */
+.card {
+  background-color: var(--color--white-opacity-1);
+  border-radius: 4px;
+  border-top: 1px solid var(--color--white-opacity-9);
+  box-shadow: 0 0px 6px var(--color--white-opacity-9);
 }
-.layout__demo-block {
-  margin: 0 0 20px;
-  padding: 20px 0 40px;
-  border-bottom: 1px solid #eee;
-  border-bottom: 1px solid var(--color--border);
+
+.card:hover {
+  background-color: var(--color--white-opacity-3);
 }
-.layout__single {
-  border: 1px solid #eee;
-  border: 1px solid var(--color--border);
-  margin: 20px 0;
-  padding: 20px 20px 5px;
-  border-radius: 5px;
+
+/* Card spacing styles */
+.card {
+  padding: 0.5rem 0rem 1rem 0rem;
+  margin-bottom: 0.8rem;
 }
-.layout__single p {
-  margin: 0;
+
+@media (min-width: 768px) {
+}
+@media (min-width: 992px) {
+  .card {
+  }
+}
+@media (min-width: 1200px) {
+  .card {
+    margin-bottom: 1rem;
+  }
 }
 
 .grid {

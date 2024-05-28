@@ -1,15 +1,15 @@
 <article data-event-card class="card layout__article">
     <div class="title_attending_container">
         <a href="{% url 'event_detail' pk=event.id %}">
-            <h3>{{ event.title }}</h3>
+            <h3 class="card__event-title">{{ event.title }}</h3>
         </a>
         {% include "events/attendance.html" %}
 
     </div>
     {% if event.ends_at < now %}
-        <p>{{ event.starts_at|timesince }} ago - {{ event.starts_at|date }}</p>
+        <p>{{ event.starts_at|timesince }}</p>
     {% else %}
-        <time>{{ event.starts_at }} - {{ event.ends_at }}</time>
+        <time>{{ event.starts_at }}</time>
         <p data-attendance-description
            data-attendance-description-type="list"
         >
