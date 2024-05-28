@@ -259,17 +259,34 @@ header {
   margin-bottom: 0.8rem;
 }
 
-@media (min-width: 768px) {
-}
-@media (min-width: 992px) {
-  .card {
-  }
-}
 @media (min-width: 1200px) {
   .card {
     margin-bottom: 1rem;
   }
 }
+
+/*   Card text styles */
+
+.card__time {
+  display: inline-block;
+  margin-bottom: 0.3rem;
+}
+
+.card__time {
+  font-size: 0.7rem;
+}
+
+@media (min-width: 768px) {
+  .card__time {
+  font-size: 0.8rem;
+  }
+}
+@media (min-width: 992px) {
+  .card__time {
+  font-size: 0.9rem;
+  }
+}
+
 
 .grid {
   display: grid;
