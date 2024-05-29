@@ -2,9 +2,9 @@
 {% load static %}
 {% block content %}
     <div class="layout">
-        <div class="grid grid--sidebar">
+        <div class="list-header">
 
-            <div class="title_bar">
+            <div class="list-header__title-bar">
                 <h2 class="title">{{ title }}</h2>
                 <div class="top__pagination">
                     {% if page_obj.has_previous %}
@@ -25,8 +25,8 @@
             </div>
             <a href="{% url 'event_new' %}" class="button button--new-event"><span class="button--new-event__text">Create event</span></a>
         </div>
-        <div class="grid grid--sidebar">
-            <div>
+        <div class="list-content">
+            <div class="list-content__main">
                 {% for event in page_obj %}
                     {% include "events/event_list_card.html" %}
                 {% endfor %}
@@ -51,7 +51,7 @@
                     {% endif %}
                 </div>
             </div>
-            <div class="animated-sidebar grid__item">
+            <div class="list-content__sidebar">
                 {% if when == "past" %}
                     <a class="active-link sidebar--link" href="{% url 'event_list' when='future' page=page_obj.number %}">
                         - Past Events
