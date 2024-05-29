@@ -24,7 +24,7 @@
                 </div>
             </div>
         <div class="list-header__sidebar">
-            <a href="{% url 'event_new' %}" class="button button--new-event"><span class="button--new-event__text">Create event</span></a>
+            <a href="{% url 'event_new' %}" class="hide-mobile button button--new-event"><span class="button--new-event__text">Create event</span></a>
           </div>
         </div>
         <div class="list-content">
@@ -54,22 +54,24 @@
                 </div>
             </div>
             <div class="list-content__sidebar">
+                <a href="{% url 'event_new' %}" class="hide-tablet"><span class="list-content__sidebar--link">Create event</span></a>
+                <p class="list-content__sidebar--header hide-mobile">Event Filters:</p>
                 {% if when == "past" %}
-                    <a class="active-link sidebar--link" href="{% url 'event_list' when='future' page=page_obj.number %}">
-                        - Past Events
+                    <a class="active-link list-content__sidebar--link" href="{% url 'event_list' when='future' page=page_obj.number %}">
+                        See Future Events
                     </a>
                 {% else %}
-                    <a class="sidebar--link" href="{% url 'event_list' when='past' page=page_obj.number %}">
-                        Past Events
+                    <a class="list-content__sidebar--link" href="{% url 'event_list' when='past' page=page_obj.number %}">
+                        See Past Events
                     </a>
                 {% endif %}
                 {% if when == "all" %}
-                    <a class="active-link sidebar--link" href="{% url 'event_list' when='future' page=page_obj.number %}">
-                        - All Events
+                    <a class="active-link list-content__sidebar--link" href="{% url 'event_list' when='future' page=page_obj.number %}">
+                        See Future Events
                     </a>
                 {% else %}
-                    <a class="sidebar--link" href="{% url 'event_list' when='all' page=page_obj.number %}">
-                        All Events
+                    <a class="list-content__sidebar--link" href="{% url 'event_list' when='all' page=page_obj.number %}">
+                        See All Events
                     </a>
                 {% endif %}
             </div>
