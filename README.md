@@ -24,10 +24,12 @@ Djisco is still in development.  Here is a roadmap of features that I intend to 
 
 ### What now?
 
-I'm currently working on getting the web app to an MVP level and then getting it launched.  Key changes before MVP level is reached:
+I'm currently working on getting the web app to an MVP level.  Key changes before MVP level is reached:
 
+- Styling overhaul - I am currently redesigning the website in order to increase responsiveness, accessibility and style 
 - Account creation - users currently cannot create accounts
-- Styling overhaul - the app is currently *functional* in appearance  but needs a real freshen up before launch
+- Events search - Add a search bar to list view
+- Improved locations - Use actual locations for events and implement a map and distance search
 
 ## Running Djisco on your machine 🌞
 
