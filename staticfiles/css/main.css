@@ -48,12 +48,11 @@
   margin: 0;
 }
 
-
 /* Border-box model */
 *,
 *::before,
 *::after {
-    box-sizing: border-box;
+  box-sizing: border-box;
 }
 
 /* BASE FONT SIZES */
@@ -260,6 +259,20 @@ header {
   flex-direction: row;
   flex-wrap: wrap;
 }
+
+@media (min-width: 768px) {
+  .list-header__title-bar {
+    flex: 0 0 75%;
+    max-width: 75%;
+    order: 1;
+    padding-right: 1rem;
+  }
+  .list-header__sidebar {
+    flex: 0 0 25%;
+    max-width: 25%;
+    order: 2;
+  }
+}
 /* ---------------------- */
 /* EVENT LIST CONTENT LAYOUT & STYLE */
 /* ---------------------- */
@@ -272,7 +285,7 @@ header {
 .list-content__main {
   flex: 0 0 100%;
   max-width: 100%;
-  order: 2
+  order: 2;
 }
 .list-content__sidebar {
   flex: 0 0 100%;
@@ -280,7 +293,6 @@ header {
   order: 1;
   display: flex;
 }
-
 
 @media (min-width: 768px) {
   .list-content__main {
@@ -296,10 +308,14 @@ header {
     order: 2;
     border-left: 1px solid var(--color--white-opacity-7);
     border-top: 1px solid var(--color--white-opacity-9);
-    border-top-left-radius: 4px;
+    box-shadow: -2px 0px 4px var(--color--white-opacity-5);
     padding-left: 1rem;
     flex-direction: column;
-    background: linear-gradient(to right, var(--color--white-opacity-1), transparent);
+    background: linear-gradient(
+      to right,
+      var(--color--white-opacity-1),
+      transparent
+    );
   }
 }
 /* ---------------------- */
@@ -410,9 +426,13 @@ header {
   color: var(--color--black);
 }
 .button--new-event {
-  background-color: var(--color--white-opacity-1);
-  border-bottom: 1px solid var(--color--white-opacity-9);
+  background-color: var(--color--white-opacity-0);
+  box-shadow: 0 0px 6px var(--color--white-opacity-6);
+  border-top: 1px solid var(--color--white-opacity-9);
+  border-left: 1px solid var(--color--white-opacity-9);
+  border-right: 1px solid var(--color--white-opacity-9);
   line-height: 3;
+  width: 100%;
   text-align: center;
   border-top-left-radius: 5px;
   border-top-right-radius: 5px;
@@ -421,11 +441,9 @@ header {
   background-color: var(--color--white-opacity-9);
 }
 .button--new-event__text {
-  transform: scaleX(0.8);
   transform-origin: center;
-  font-style: italic;
   display: inline-block;
-  font-size: 0.75rem;
+  font-size: 1rem;
 }
 
 @media (min-width: 768px) {
