@@ -1,8 +1,8 @@
 <article data-event-card class="card">
     {% if event.ends_at < now %}
-        <time class="card__time">{{ event.starts_at|timesince }}</time>
+        <time class="card__event-time">{{ event.starts_at|timesince }}</time>
     {% else %}
-        <time class="card__time">{{ event.starts_at }}</time>
+        <time class="card__event-time">{{ event.starts_at }}</time>
         <div class="title_attending_container">
             <a href="{% url 'event_detail' pk=event.id %}">
                 <h3 class="card__event-title">{{ event.title }}</h3>
@@ -10,6 +10,8 @@
             {% include "events/attendance.html" %}
 
         </div>
+    <div class="card__title-underline" aria-hidden="true"></div>
+        <p class="rich-text">{{ event.description }}</p>
         <p data-attendance-description
            data-attendance-description-type="list"
         >
@@ -21,6 +23,5 @@
         </p>
     {% endif %}
     <p >{{ event.location }}</p>
-    <p class="rich-text">{{ event.description }}</p>
     <p data-error class="error hidden" aria-live="polite"></p>
 </article>

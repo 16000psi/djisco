@@ -23,6 +23,12 @@
   --color--border: #eee;
   --color--steel-gray: #241e31;
   --color--black-russian: #03001c;
+  --color--battleship-gray: #808f85;
+  --color--platinum: #dce0d9;
+  --color--blush: #ea638c;
+  --color--steel-blue: #2d82b7;
+  --color--aquamarine: #42e2b8;
+  --color--dutch-white: #f3dfbf;
   /* Opacities for white */
   --color--white-opacity-0: rgba(255, 255, 255, 0);
   --color--white-opacity-1: rgba(255, 255, 255, 0.05);
@@ -255,7 +261,7 @@ header {
 
 /* Card spacing styles */
 .card {
-  padding: 0.5rem 0rem 1rem 0rem;
+  padding: 0.2rem 0.3rem 1rem 0.3rem;
   margin-bottom: 0.8rem;
 }
 
@@ -267,26 +273,33 @@ header {
 
 /*   Card text styles */
 
-.card__time {
+.card__event-time {
   display: inline-block;
   margin-bottom: 0.3rem;
+  color: var(--color--platinum);
+  font-size: 0.6rem;
 }
 
-.card__time {
-  font-size: 0.7rem;
+.card__event-title {
+  margin-bottom: 0.3rem;
+  /* font-weight: normal; */
+}
+
+.card__title-underline {
+  border-top: 2px ridge var(--color--white-opacity-1);
+  margin-bottom: 0.4rem;
 }
 
 @media (min-width: 768px) {
-  .card__time {
-  font-size: 0.8rem;
+  .card__event-time {
+    font-size: 0.7rem;
   }
 }
 @media (min-width: 992px) {
-  .card__time {
-  font-size: 0.9rem;
+  .card__event-time {
+    font-size: 0.8rem;
   }
 }
-
 
 .grid {
   display: grid;
@@ -295,7 +308,7 @@ header {
 .grid__item {
   min-height: 100px;
   background-color: #eee;
-  background-color: var(--color--martinique);
+  background-color: var(--color--white-opacity-1);
   padding: 20px;
   border-bottom-left-radius: 5px;
   border-bottom-right-radius: 5px;
@@ -330,11 +343,15 @@ header {
   color: var(--color--black);
 }
 .button--new-event {
-  background-color: var(--color--steel-gray);
+  background-color: var(--color--white-opacity-1);
+  border-bottom: 1px solid var(--color--white-opacity-9);
   line-height: 3;
   text-align: center;
   border-top-left-radius: 5px;
   border-top-right-radius: 5px;
+}
+.button--new-event:hover {
+  background-color: var(--color--white-opacity-9);
 }
 .button--new-event__text {
   transform: scaleX(0.8);
