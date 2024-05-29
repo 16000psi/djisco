@@ -11,7 +11,8 @@
         </div>
     <div class="card__title-underline" aria-hidden="true"></div>
         <p class="card__event-description">{{ event.description }}</p>
-        <p data-attendance-description
+        <p class="card__event-attendance"
+           data-attendance-description
            data-attendance-description-type="list"
         >
             {% if event.has_user_rsvp %}
@@ -21,7 +22,7 @@
             {% endif %}
         </p>
 
-    <p >{{ event.location }}</p>
+    <p class="card__event-location">{{ event.location }}</p>
     <p data-error class="error hidden" aria-live="polite"></p>
             </a>
 </article>
