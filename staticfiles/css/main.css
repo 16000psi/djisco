@@ -57,6 +57,7 @@
 
 /* BASE FONT SIZES */
 html {
+  min-width: 370px;
   font-size: 16px; /* Base font size for mobile */
 }
 
@@ -326,7 +327,6 @@ header {
 /* EVENT LIST HEADER BAR LAYOUT & STYLE */
 /* ---------------------- */
 
-
 .list-header {
   display: flex;
   flex-direction: row;
@@ -348,7 +348,6 @@ header {
 
 .list-header__pagination {
   font-size: 0.9rem;
-
 }
 
 .list-header__pagination-item {
@@ -374,7 +373,6 @@ header {
     font-size: 1.5rem;
   }
 }
-
 
 /* ---------------------- */
 /* EVENT LIST CONTENT LAYOUT & STYLE */
@@ -543,6 +541,106 @@ header {
   }
 }
 
+/* ---------------------------------------------------- */
+/* EVENT DETAIL STUFF
+*  ---------------------------------------------------- */
+/* Title styles */
+.event-detail__title {
+  font-size: 1rem;
+  margin-top: 0.3rem;
+  margin-bottom: 0.7rem;
+  padding: 0 1rem 0 1rem;
+}
+@media (min-width: 768px) {
+  .event-detail__title {
+    font-size: 1.1rem;
+  }
+}
+@media (min-width: 992px) {
+  .event-detail__title {
+    font-size: 1.3em;
+  }
+}
+/* ---------------------- */
+/* CARD STYLE */
+/* ---------------------- */
+
+/* General card styles */
+.detail-card {
+  background: linear-gradient(
+    to right,
+    var(--color--white-opacity-5),
+    transparent
+  );
+  border-radius: 4px;
+  border-top: 1px solid var(--color--white-opacity-9);
+  border-right: 1px solid var(--color--white-opacity-1);
+  box-shadow: 0 0px 6px var(--color--white-opacity-9);
+}
+
+.event-detail__underline {
+  border-top: 2px ridge var(--color--white-opacity-1);
+  margin-bottom: 0.4rem;
+}
+
+/* Card spacing styles */
+.detail-card {
+  padding: 0.5rem 1rem 1rem 1rem;
+  margin-bottom: 1rem;
+}
+
+@media (min-width: 700px) {
+  .detail-card {
+    margin-bottom: 1.5rem;
+  }
+}
+.event-detail__location-attendance-container {
+  display: flex;
+  flex-direction: horizontal;
+  justify-content: space-between;
+  flex-wrap: wrap;
+}
+.event-detail__location-attendance-container > *{
+  min-width: 300px;
+}
+/*   Card text styles */
+
+.detail-card__event-time {
+  display: inline-block;
+  margin-bottom: 0.4rem;
+  color: var(--color--platinum);
+  font-size: 0.6rem;
+}
+
+.event-detail__description {
+  color: var(--color--platinum);
+  font-size: 0.9rem;
+  margin-bottom: 0.7rem;
+}
+
+.event-detail__attendance, .event-detail__location {
+  color: sed;
+  font-size: 0.7rem;
+  margin-bottom: 0.7rem;
+}
+.card__event-location {
+  font-size: 0.7rem;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+@media (min-width: 768px) {
+  .detail-card__event-time {
+    margin-bottom: 0.5rem;
+    font-size: 0.8rem;
+  }
+}
+@media (min-width: 992px) {
+  .detail-card__event-time {
+    font-size: 0.8rem;
+  }
+}
 /* ---------------------- */
 /* BUTTON STYLES */
 /* ---------------------- */
