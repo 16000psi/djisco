@@ -3,23 +3,22 @@
 {% block content %}
     <div class="layout">
         <div class="list-header">
-
             <div class="list-header__title-bar">
-                <h2 class="title">{{ title }}</h2>
-                <div class="top__pagination">
+                <h2 class="list-header__title">{{ title }}</h2>
+                <div class="list-header__pagination">
                     {% if page_obj.has_previous %}
-                        <a aria-label="go to first page" class="title_bar__pagination__item" href="{% url 'event_list' when=when page=1 %}"><<</a>
-                        <a aria-label="go to previous page" class="title_bar__pagination__item" href="{% url 'event_list' when=when page=page_obj.previous_page_number %}">
+                        <a aria-label="go to first page" class="list-header__pagination-item" href="{% url 'event_list' when=when page=1 %}"><<</a>
+                        <a aria-label="go to previous page" class="list-header__pagination-item" href="{% url 'event_list' when=when page=page_obj.previous_page_number %}">
                             <
                         </a>
                     {% endif %}
                     <span aria-label="page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}
-                                     " class="title_bar__pagination__item">
+                                     " class="list-header__pagination-item">
                         {{ page_obj.number }} / {{ page_obj.paginator.num_pages }}
                     </span>
                     {% if page_obj.has_next %}
-                        <a aria-label="go to next page" class="title_bar__pagination__item" href="{% url 'event_list' when=when page=page_obj.next_page_number %}">></a>
-                        <a aria-label="go to last page" class="title_bar__pagination__item" href="{% url 'event_list' when=when page=page_obj.paginator.num_pages %}">>></a>
+                        <a aria-label="go to next page" class="list-header__pagination-item" href="{% url 'event_list' when=when page=page_obj.next_page_number %}">></a>
+                        <a aria-label="go to last page" class="list-header__pagination-item" href="{% url 'event_list' when=when page=page_obj.paginator.num_pages %}">>></a>
                     {% endif %}
                 </div>
             </div>
