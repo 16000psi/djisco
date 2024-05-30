@@ -125,6 +125,10 @@ span {
   text-decoration: none;
 }
 
+.hidden {
+  display: none;
+}
+
 /* ====================================
 *   BASE HEADER SECTION
 *   */
@@ -589,6 +593,11 @@ header {
   margin-bottom: 1rem;
 }
 
+.attendance-button-container {
+  display: flex;
+  justify-content: space-evenly;
+}
+
 @media (min-width: 700px) {
   .detail-card {
     margin-bottom: 1.5rem;
@@ -600,7 +609,7 @@ header {
   justify-content: space-between;
   flex-wrap: wrap;
 }
-.event-detail__location-attendance-container > *{
+.event-detail__location-attendance-container > * {
   min-width: 300px;
 }
 /*   Card text styles */
@@ -618,7 +627,8 @@ header {
   margin-bottom: 0.7rem;
 }
 
-.event-detail__attendance, .event-detail__location {
+.event-detail__attendance,
+.event-detail__location {
   color: sed;
   font-size: 0.7rem;
   margin-bottom: 0.7rem;
@@ -647,18 +657,35 @@ header {
 
 .button {
   background-color: transparent;
-  background-color: red;
   background-image: none;
-  box-shadow: none;
+  color: white;
+  border: 1px solid var(--color--white-opacity-5);
+  border-top: 1px solid var(--color--white-opacity-9);
+  border-radius: 4px;
+  box-shadow: 0 0px 3px var(--color--white-opacity-5);
+  padding: 0.3rem 0.5rem 0.3rem 0.5rem;
   display: inline-block;
-  border: 2px solid transparent;
   transition:
-    color 0.25s ease-out,
-    background-color 0.25s ease-out,
+    color 0.1s ease-out,
+    background-color 0.1s ease-out,
     border-color 0.25s ease-out;
+}
+.button--attendance {
+  margin: 0.4rem;
+  margin-bottom: 0.7rem;
+  padding: 1rem;
+  font-size: 0.75rem;
+}
+@media (min-width: 700px) {
+  .button--attendance {
+    margin: 0.8rem;
+    margin-bottom: 1.1rem;
+  }
 }
 .button:hover {
   cursor: pointer;
+  background-color: var(--color--white-opacity-3);
+  box-shadow: 0 0px 6px var(--color--white-opacity-9);
 }
 .button:focus:not(:active):not(:hover) {
   border-color: #ffbf47;

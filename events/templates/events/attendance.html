@@ -20,10 +20,10 @@
                 {% csrf_token %}
                 <input type="hidden" name="redirect_target" value="{{ request.path }}">
                 <input type="hidden" name="maximum_attendees" value="{{ event.maximum_attendees }}">
-                <div class="attend_button_container">
+                <div class="attendance-button-container">
                     <div data-loading class="loading hidden"></div>
                     <button data-attendance-button
-                            class="button button--border
+                            class="button button--attendance
                                    {% if event.has_user_rsvp %}
                                        button__unattend
                                    {% else %}

@@ -41,6 +41,7 @@
             <time class="detail-card__event-time">{{ event.starts_at }} - {{ event.ends_at }}</time>
         {% endif %}
         <div class="detail_form_container">
+        <div class="event-detail__underline" aria-hidden="true"></div>
             {% include 'events/attendance.html' %}
 
             <p data-error class="error hidden" aria-live="polite"></p>
