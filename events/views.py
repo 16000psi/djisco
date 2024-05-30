@@ -91,10 +91,26 @@ class EventDetailView(DetailView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(
-            form=ContributionForm,
             button_text_unattend="Cancel your attendance",
             button_text_attend="Join this Event!",
             now=timezone.make_aware(datetime.now()),
+            **kwargs,
+        )
+        return context
+
+
+class EventDetailContributionsView(DetailView):
+    template_name = "events/event_detail_contributions.html"
+
+    def get_queryset(self):
+        qs = Event.objects.with_attendance_fields()
+        if self.request.user.is_authenticated:
+            qs = qs.with_has_user_rsvp(self.request.user)
+        return qs
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(
+            form=ContributionForm,
             **kwargs,
         )
         context["contribution_items"] = ContributionItem.objects.filter_for_event(
@@ -299,7 +315,11 @@ def requirement_edit_view(request, pk, contribution_item_pk):
                 )
                 instances_for_deletion_pks = ContributionRequirement.objects.get_unfulfilled_requirements_for_item_for_event(
                     contribution_item, event
-                ).values_list("pk", flat=True)[0:number_for_deletion]
+                ).values_list(
+                    "pk", flat=True
+                )[
+                    0:number_for_deletion
+                ]
                 if instances_for_deletion_pks:
                     ContributionRequirement.objects.filter(
                         pk__in=list(instances_for_deletion_pks)

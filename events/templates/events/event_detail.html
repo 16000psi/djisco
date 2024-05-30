@@ -5,17 +5,19 @@
 <div class="layout">
     <nav class="detail-nav">
         <div class="event-actions-container">
-            {% if user.is_authenticated and user == event.organiser %}
-                <a href="{% url 'event_edit' pk=event.id %}" class="button button--secondary">Edit</a>
-                <a href="{% url 'event_delete' pk=event.id %}" class="button button--secondary">Delete</a>
-            {% endif %}
         </div>
     </nav>
         <h2 class="event-detail__title">Event: {{ event.title }}</h2>
+<a class="button" href="{% url 'event_detail' pk=event.id %}">Details</a>
+<a class="button" href="{% url 'event_detail_contributions' pk=event.id %}">Contributions</a>
     <article data-event-card class="detail-card">
 
         <p class="event-detail__description" aria-label="event description">{{ event.description }}</p>
 
+            {% if user.is_authenticated and user == event.organiser %}
+                <a href="{% url 'event_edit' pk=event.id %}" class="button button--secondary">Edit Event</a>
+                <a href="{% url 'event_delete' pk=event.id %}" class="button button--secondary">Delete Event</a>
+            {% endif %}
         <div class="event-detail__underline" aria-hidden="true"></div>
         <div class="event-detail__location-attendance-container" aria-hidden="true">
         <p class="event-detail__location">Location: {{ event.location }}</p>
@@ -46,7 +48,6 @@
 
             <p data-error class="error hidden" aria-live="polite"></p>
         </div>
-            {% include 'events/contributions_table.html' %}
         </article>
 
   </div>
