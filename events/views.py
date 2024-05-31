@@ -315,11 +315,7 @@ def requirement_edit_view(request, pk, contribution_item_pk):
                 )
                 instances_for_deletion_pks = ContributionRequirement.objects.get_unfulfilled_requirements_for_item_for_event(
                     contribution_item, event
-                ).values_list(
-                    "pk", flat=True
-                )[
-                    0:number_for_deletion
-                ]
+                ).values_list("pk", flat=True)[0:number_for_deletion]
                 if instances_for_deletion_pks:
                     ContributionRequirement.objects.filter(
                         pk__in=list(instances_for_deletion_pks)
