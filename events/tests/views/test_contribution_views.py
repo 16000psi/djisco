@@ -63,9 +63,9 @@ class RequirmentCreateViewTestCase(TestCase):
         # Act
         response = self.client.post(self.url, self.requirement_data)
 
-        # Assert - Redirects to detail view
+        # Assert - Redirects to detail contributions view
         self.assertEqual(response.status_code, HTTPStatus.FOUND)
-        self.assertRedirects(response, reverse("event_detail", args=[1]))
+        self.assertRedirects(response, reverse("event_detail_contributions", args=[1]))
 
         # Assert - ContributionItem Created
         final_contribution_item_count = ContributionItem.objects.all().count()
