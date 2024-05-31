@@ -57,7 +57,7 @@
 
 /* BASE FONT SIZES */
 html {
-  min-width: 370px;
+  min-width: 300px;
   font-size: 16px; /* Base font size for mobile */
 }
 
@@ -199,7 +199,7 @@ header {
 /* logo sizes */
 .app-logo {
   padding-left: 18px;
-  font-size: 0.9rem;
+  font-size: 1.2rem;
 }
 .app-logo::after {
   top: 1.5px;
@@ -577,6 +577,7 @@ header {
     transparent
   );
   border-radius: 4px;
+  border-top-left-radius: 0;
   border-top: 1px solid var(--color--white-opacity-9);
   border-right: 1px solid var(--color--white-opacity-1);
   box-shadow: 0 0px 6px var(--color--white-opacity-9);
@@ -676,6 +677,24 @@ header {
   padding: 1rem;
   font-size: 0.75rem;
 }
+
+.button--tab {
+  border-bottom-left-radius: 0;
+  border-bottom-right-radius: 0;
+  border-bottom: none;
+  font-size: 0.7rem;
+}
+
+@media (min-width: 992px) {
+  .button--tab {
+    font-size: 0.8rem;
+  }
+}
+.button--tab-highlighted {
+  background-color: var(--color--white-opacity-3);
+  text-decoration: underline;
+}
+
 @media (min-width: 700px) {
   .button--attendance {
     margin: 0.8rem;

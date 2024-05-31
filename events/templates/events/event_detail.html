@@ -8,8 +8,8 @@
         </div>
     </nav>
         <h2 class="event-detail__title">Event: {{ event.title }}</h2>
-<a class="button" href="{% url 'event_detail' pk=event.id %}">Details</a>
-<a class="button" href="{% url 'event_detail_contributions' pk=event.id %}">Contributions</a>
+<a class="button button--tab button--tab-highlighted" href="{% url 'event_detail' pk=event.id %}">Details</a>
+<a class="button button--tab" href="{% url 'event_detail_contributions' pk=event.id %}">Contributions</a>
     <article data-event-card class="detail-card">
 
         <p class="event-detail__description" aria-label="event description">{{ event.description }}</p>
@@ -43,7 +43,9 @@
             <time class="detail-card__event-time">{{ event.starts_at }} - {{ event.ends_at }}</time>
         {% endif %}
         <div class="detail_form_container">
+            {% if user.is_authenticated %}
         <div class="event-detail__underline" aria-hidden="true"></div>
+            {% endif %}
             {% include 'events/attendance.html' %}
 
             <p data-error class="error hidden" aria-live="polite"></p>
