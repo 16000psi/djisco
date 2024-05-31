@@ -1,7 +1,7 @@
 {% extends "base.html" %}
 {% block content %}
     <div class="layout">
-        <div class="card layout__article">
+        <div>
             {% if form.errors %}
                 <p>Your username and password didn't match. Please try again.</p>
             {% endif %}
@@ -28,7 +28,6 @@
                 <input type="submit" value="Login"class="button button--primary button--login">
                 <input type="hidden" name="next" value="{{ next }}">
             </form>
-            <hr>
         </div>
     </div>
 {% endblock content %}
