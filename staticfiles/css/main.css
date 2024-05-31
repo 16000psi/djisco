@@ -674,6 +674,14 @@ header {
   min-width: 200px;
 }
 
+/* ---------------------- */
+/* OTHER FORM STYLE */
+/* ---------------------- */
+
+.event-form__title {
+  margin: 0.5rem 0 1rem 0;
+}
+
 /* ------------------------------------ */
 /* GENERIC FORM STYLES */
 /* ------------------------------------ */
@@ -696,6 +704,8 @@ form {
 .form-group input,
 .form-group textarea,
 .form-group select {
+  resize: vertical;
+  color-scheme: dark;
   background-color: var(--color--white-opacity-1);
   color: var(--color--platinum);
   width: 100%;
