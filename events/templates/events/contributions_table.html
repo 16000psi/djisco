@@ -23,14 +23,20 @@
         <div class="event-detail__underline" aria-hidden="true"></div>
     {% endif %}
     <table>
-        <caption class="sr-only">Contribution Requirements for this Event</caption>
+
+    <h3>Requested Items</h3>
+        {% if user.is_authenticated and user == event.organiser %}
+        <p class="event-detail__table-description">Items you have requested for this event.  To change the quantity of an item, click on its name.</p>
+        {% else %}
+        <p class="event-detail__table-description">Items the organiser has requested for this event</p>
+        {% endif %}
         <thead>
             <tr>
                 <th scope="col">Item</th>
                 <th scope="col">Pleged / Required</th>
-        {% if user.is_authenticated and user == event.organiser %}
+        {% if user.is_authenticated and event.has_user_rsvp %}
                 <th scope="col">
-                    <a href="{% url 'requirement_create' pk=event.pk %}" aria-label="New contribution requirement" class="button button--border">New</a>
+                Contribute
                 </th>
         {% endif %}
             </tr>
@@ -38,26 +44,30 @@
         <tbody>
             {% for item in contribution_items %}
                 <tr>
-                    <td class="contribution-title">{{ item.title }}</td>
+                    <td class="contribution-title">
+                        {% if user == event.organiser %}
+          <a href="{% url 'requirement_edit' contribution_item_pk=item.pk pk=event.pk %}" aria-label="Edit your pledged contribution">
+            {{ item.title }} </a>
+          {% else %}
+          {{ item.title }}
+          {% endif %}
+</td>
+
         <td>{{ item.commitments_count }} / {{ item.requirements_count }}</td>
+                        {% if event.has_user_rsvp %}
                     <td>
                         {% if event.has_user_rsvp %}
                             <a href="{% url 'commitment_create' contribution_item_pk=item.pk pk=event.pk %}" aria-label="Edit your pledged contribution" class="button button--border">
                                 Contribute
                             </a>
                         {% endif %}
-                        {% if user == event.organiser %}
-
-                            <a href="{% url 'requirement_edit' contribution_item_pk=item.pk pk=event.pk %}" aria-label="Edit your pledged contribution" class="button button--border">
-                                Edit
-                            </a>
-                        {% endif %}
                     </td>
+        {% endif %}
                 </tr>
             {% empty %}
                 <tr>
                     <td colspan="5">
-                        <p class="empty-table-message">There is no contribution currently required for this event</p>
+                        <p class="empty-table-message">The event organiser has not requested any items for this event.</p>
                     </td>
                 </tr>
             {% endfor %}
