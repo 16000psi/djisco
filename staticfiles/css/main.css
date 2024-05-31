@@ -634,11 +634,12 @@ header {
   font-size: 0.7rem;
   margin-bottom: 0.7rem;
 }
-.card__event-location {
+
+.event-detail__form-description {
+  margin-top: 0.3rem;
+  margin-bottom: 0.5rem;
   font-size: 0.7rem;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
+  color: var(--color--platinum);
 }
 
 @media (min-width: 768px) {
@@ -652,6 +653,54 @@ header {
     font-size: 0.8rem;
   }
 }
+/* ---------------------- */
+/* CONTRIBUTION FORM STYLE */
+/* ---------------------- */
+
+.contribution-form {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 20px;
+}
+
+.contribution-form > .form-group {
+  flex: 1 1 20%;
+  min-width: 200px;
+}
+
+/* ------------------------------------ */
+/* GENERIC FORM STYLES */
+/* ------------------------------------ */
+
+form {
+  margin-bottom: 10px;
+}
+.form-group {
+  margin-bottom: 0.5rem;
+}
+
+.form-group label {
+  display: block;
+  margin-bottom: 5px;
+  font-weight: bold;
+  font-style: italic;
+  font-size: 0.8rem;
+}
+
+.form-group input,
+.form-group textarea,
+.form-group select {
+  background-color: var(--color--white-opacity-1);
+  color: var(--color--platinum);
+  width: 100%;
+  font-size: 90%;
+  padding: 2px;
+
+  box-sizing: border-box;
+  border: 1px solid var(--color--white-opacity-9);
+  border-radius: 4px;
+}
+
 /* ---------------------- */
 /* BUTTON STYLES */
 /* ---------------------- */
@@ -678,6 +727,13 @@ header {
   font-size: 0.75rem;
 }
 
+.button--submission {
+  font-size: 0.75rem;
+  margin-left: 10px;
+  height: 2rem;
+  position: relative;
+  top: 15px;
+}
 .button--tab {
   border-bottom-left-radius: 0;
   border-bottom-right-radius: 0;

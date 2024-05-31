@@ -266,7 +266,7 @@ def requirement_create_view(request, pk):
 
     return HttpResponseRedirect(
         reverse_lazy(
-            "event_detail",
+            "event_detail_contributions",
             kwargs={"pk": pk},
         )
     )

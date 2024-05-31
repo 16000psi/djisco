@@ -1,9 +1,12 @@
 
-<div class="table-container">
+<div>
 
     {% if user == event.organiser %}
+    <p class="event-detail__form-description">As the organiser, you can use this form to list items that you would like attendees to bring to your event.</p>
+            <div class="event-detail__underline" aria-hidden="true"></div>
         <form action="{% url 'requirement_create' pk=event.id %}" class="contribution-form" method="post">
             {% csrf_token %}
+
             {% for field in form %}
                 <div class="form-group">
                     <label for="{{ field.id_for_label }}">{{ field.label }}</label>
@@ -15,37 +18,28 @@
                     {% endif %}
                 </div>
             {% endfor %}
-            <div class="delete-button-container">
-                <button type="submit" class="button button--secondary">Add</button>
-            </div>
+                <button type="submit" class="button button--submission">Add</button>
         </form>
+        <div class="event-detail__underline" aria-hidden="true"></div>
     {% endif %}
     <table>
         <caption class="sr-only">Contribution Requirements for this Event</caption>
         <thead>
             <tr>
-                <th scope="col">Contribution Item</th>
-                <th scope="col">Required</th>
-                <th scope="col">Pledged</th>
-                <th scope="col">Fulfilled</th>
+                <th scope="col">Item</th>
+                <th scope="col">Pleged / Required</th>
+        {% if user.is_authenticated and user == event.organiser %}
                 <th scope="col">
                     <a href="{% url 'requirement_create' pk=event.pk %}" aria-label="New contribution requirement" class="button button--border">New</a>
                 </th>
+        {% endif %}
             </tr>
         </thead>
         <tbody>
             {% for item in contribution_items %}
                 <tr>
                     <td class="contribution-title">{{ item.title }}</td>
-                    <td>{{ item.requirements_count }}</td>
-                    <td>{{ item.commitments_count }}</td>
-                    <td>
-                        {% if item.commitments_count >= item.requirements_count %}
-                            <p>Yes</p>
-                        {% else %}
-                            <p>No</p>
-                        {% endif %}
-                    </td>
+        <td>{{ item.commitments_count }} / {{ item.requirements_count }}</td>
                     <td>
                         {% if event.has_user_rsvp %}
                             <a href="{% url 'commitment_create' contribution_item_pk=item.pk pk=event.pk %}" aria-label="Edit your pledged contribution" class="button button--border">
