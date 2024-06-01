@@ -693,7 +693,8 @@ form {
   margin-bottom: 0.5rem;
 }
 
-input[name='username'], input[name='password'] {
+input[name="username"],
+input[name="password"] {
   background-color: var(--color--white-opacity-1);
   color: var(--color--platinum);
   padding: 2px;
@@ -862,6 +863,14 @@ tbody td {
   font-size: 1rem;
 }
 
+/* ---------------------- */
+/* ERROR / MESSAGE STYLES */
+/* ---------------------- */
+
+.error > * {
+  margin: 10px 0 10px 0;
+  font-size: 0.8rem;
+}
 @media (min-width: 768px) {
   /* Styles for tablets and larger screens */
 }

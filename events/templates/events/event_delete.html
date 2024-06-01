@@ -1,8 +1,8 @@
 {% extends "base.html" %}
 
 {% block content %}
-  <div class="layout__single">
-    <h2>Delete Event</h2>
+  <div class="layout">
+    <h3 class="event-form__title">Delete Event</h3>
     <form method="post">
       {% csrf_token %}
       <div class="form-group">
