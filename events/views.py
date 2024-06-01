@@ -1,6 +1,7 @@
 from datetime import datetime
 
 from django.contrib import messages
+from django.contrib.auth import authenticate, login
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.db import models, transaction
 from django.http import (
@@ -32,6 +33,7 @@ from .forms import (
     DeleteEventForm,
     EventCreateForm,
     EventForm,
+    SignUpForm,
 )
 from .mixins import AuthenticatedEventOrganiserMixin
 from .models import (
@@ -381,3 +383,19 @@ def commitment_create_view(request, pk, contribution_item_pk):
         form = CommitmentForm(event=event, contribution_item=contribution_item)
         context = {"form": form, "event": event}
         return render(request, "events/commitment_create.html", context)
+
+
+def signup_view(request):
+    if request.method == "POST":
+        form = SignUpForm(request.POST)
+        if form.is_valid():
+            user = form.save()
+            user.refresh_from_db()  # load the profile instance created by the signal
+            user.save()
+            raw_password = form.cleaned_data.get("password1")
+            user = authenticate(username=user.username, password=raw_password)
+            login(request, user)
+            return redirect("event_list")
+    else:
+        form = SignUpForm()
+    return render(request, "registration/signup.html", {"form": form})

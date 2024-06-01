@@ -346,6 +346,7 @@ header {
   justify-content: space-between;
   width: 100%;
 }
+
 .list-header__title {
   font-size: 1.3rem;
 }
@@ -701,7 +702,7 @@ form {
 
 input[name="username"],
 input[name="password"] {
-  background-color: var(--color--white-opacity-1);
+  background-color: var(--color--white-opacity-1) !important;
   color: var(--color--platinum);
   padding: 2px;
   border: 1px solid var(--color--white-opacity-9);
@@ -728,6 +729,18 @@ input[name="password"] {
   padding: 2px;
   border: 1px solid var(--color--white-opacity-9);
   border-radius: 4px;
+}
+
+.help-text {
+  font-size: 0.8rem;
+  margin: 10px 0 10px 0;
+  color: var(--color--platinum);
+}
+
+.form-group ul {
+  font-size: 0.8rem;
+  margin: 10px 0 10px 0;
+  color: var(--color--platinum);
 }
 /* ---------------------- */
 /* TABLE STYLES */
