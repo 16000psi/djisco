@@ -1,9 +1,9 @@
 {% extends "base.html" %}
 
 {% block content %}
-  <div class="layout__single">
-    <h2>Edit contribution {{ contribution_item.title }} for event {{ event.title }}</h2>
-    <p>There are currently {{ contribution_item.commitments_count }} items commited out of a total of {{ contribution_item.requirements_count }}.  You can change how many of this item you would like to request for the event, but you cannot request less than are already committed.</p>
+  <div class="layout">
+    <h3 class="event-form__title">Edit contribution "{{ contribution_item.title }}" for event: {{ event.title }}</h3>
+    <p class="contribution-form__p">There are currently {{ contribution_item.commitments_count }} items commited out of a total of {{ contribution_item.requirements_count }}.  You can change how many of this item you would like to request for the event, but you cannot request less than are already committed.</p>
     <form method="post">
       {% csrf_token %}
       {% for field in form %}
@@ -18,8 +18,7 @@
         </div>
       {% endfor %}
       <div class="delete-button-container">
-        <button type="submit" class="button button--secondary">Contribute</button>
-        <p>Put a delete button here</p>
+        <button type="submit" class="button button--secondary">Request</button>
         <a href="{% url 'event_detail' pk=event.pk %}" class="button button--cancel">Cancel</a>
       </div>
     </form>

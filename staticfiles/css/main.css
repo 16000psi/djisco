@@ -674,6 +674,12 @@ header {
   min-width: 200px;
 }
 
+.contribution-form__p {
+  font-size: 0.8rem;
+  margin-bottom: 0.7rem;
+  color: var(--color--platinum);
+}
+
 /* ---------------------- */
 /* OTHER FORM STYLE */
 /* ---------------------- */
