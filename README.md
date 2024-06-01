@@ -1,6 +1,6 @@
 # 🎈 Djisco - DIY event organiser 🎈
 
-Djisco is a web application which allows users to organise events.  It is built mostly in Django, with some Javascript UI enhancements.  It is currently being actively developed.
+Djisco is a web application which allows users to organise events.  It is built using Django and it is currently being actively developed.
 
 ## Current Features ✅
 
@@ -15,7 +15,7 @@ Djisco is a web application which allows users to organise events.  It is built 
 
 Djisco is still in development.  Here is a roadmap of features that I intend to implement, in approximate priority order.
 
-- Account creation, allow users to add each other as "friends"
+- Allow users to add each other as "friends"
 - Allow users to invite each other to events
 - A volunteering system, where organisers can request specific jobs for a given event (e.g. bar / door work for the event) and attendees can commit to fulfilling those roles
 - A ticketing system for events 
@@ -26,10 +26,12 @@ Djisco is still in development.  Here is a roadmap of features that I intend to 
 
 I'm currently working on getting the web app to an MVP level.  Key changes before MVP level is reached:
 
-- Styling overhaul - I am currently redesigning the website in order to increase responsiveness, accessibility and style 
-- Account creation - users currently cannot create accounts
 - Events search - Add a search bar to list view
 - Improved locations - Use actual locations for events and implement a map and distance search
+- Invites - Allow users to invite other users to events
+- Calendar Integration - Users who RSVP can add events to their chosen callendar app
+- Social Media Sharing - Allow users to share events on various platforms
+- Event analytics - Enhanced detail view tab for organisers showing, for example, RSVPs over time.
 
 ## Running Djisco on your machine 🌞
 
