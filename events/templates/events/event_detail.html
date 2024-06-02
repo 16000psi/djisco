@@ -2,57 +2,57 @@
 {% load static %}
 {% block title %}Event App - {{ event.title }}{% endblock title %}
 {% block content %}
-<div class="layout">
-    <nav class="detail-nav">
-        <div class="event-actions-container">
-        </div>
-    </nav>
+    <div class="layout">
+        <nav class="detail-nav">
+            <div class="event-actions-container">
+            </div>
+        </nav>
         <h2 class="event-detail__title">Event: {{ event.title }}</h2>
-<a class="button button--tab button--tab-highlighted" href="{% url 'event_detail' pk=event.id %}">Details</a>
-<a class="button button--tab" href="{% url 'event_detail_contributions' pk=event.id %}">Contributions</a>
-    <article data-event-card class="detail-card">
+        <a class="button button--tab button--tab-highlighted" href="{% url 'event_detail' pk=event.id %}">Details</a>
+        <a class="button button--tab" href="{% url 'event_detail_contributions' pk=event.id %}">Contributions</a>
+        <article data-event-card class="detail-card">
 
-        <p class="event-detail__description" aria-label="event description">{{ event.description }}</p>
+            <p class="event-detail__description" aria-label="event description">{{ event.description }}</p>
 
             {% if user.is_authenticated and user == event.organiser %}
                 <a href="{% url 'event_edit' pk=event.id %}" class="button button--secondary">Edit Event</a>
                 <a href="{% url 'event_delete' pk=event.id %}" class="button button--secondary">Delete Event</a>
             {% endif %}
-        <div class="event-detail__underline" aria-hidden="true"></div>
-        <div class="event-detail__location-attendance-container" aria-hidden="true">
-        <p class="event-detail__location">Location: {{ event.location }}</p>
+            <div class="event-detail__underline" aria-hidden="true"></div>
+            <div class="event-detail__location-attendance-container" aria-hidden="true">
+                <p class="event-detail__location">Location: {{ event.location }}</p>
 
-        {% if event.ends_at < now %}
-            <p class="event-detail__attendance">{{ event.attendee_count }} people attended out of {{ event.maximum_attendees }} possible spaces</p>
-        {% else %}
-            <p class="event-detail__attendance"
-               data-attendance-description
-               data-attendance-description-type="detail"
-            >
-                {% if event.has_user_rsvp %}
-                    {{ event.attendee_count }} attendee{{ event.attendee_count|pluralize:"s" }} out of {{ event.maximum_attendees }} spaces filled - {{ event.remaining_spaces }} spaces left - you are attending
+                {% if event.ends_at < now %}
+                    <p class="event-detail__attendance">{{ event.attendee_count }} people attended out of {{ event.maximum_attendees }} possible spaces</p>
                 {% else %}
-                    {{ event.attendee_count }} attendee{{ event.attendee_count|pluralize:"s" }} out of {{ event.maximum_attendees }} spaces filled - {{ event.remaining_spaces }} spaces left
+                    <p class="event-detail__attendance"
+                       data-attendance-description
+                       data-attendance-description-type="detail"
+                    >
+                        {% if event.has_user_rsvp %}
+                            {{ event.attendee_count }} attendee{{ event.attendee_count|pluralize:"s" }} out of {{ event.maximum_attendees }} spaces filled - {{ event.remaining_spaces }} spaces left - you are attending
+                        {% else %}
+                            {{ event.attendee_count }} attendee{{ event.attendee_count|pluralize:"s" }} out of {{ event.maximum_attendees }} spaces filled - {{ event.remaining_spaces }} spaces left
+                        {% endif %}
+                    </p>
                 {% endif %}
-            </p>
-        {% endif %}
-        </div>
-        {% if event.ends_at < now %}
-            <time class="detail-card__event-time">{{ event.starts_at|timesince }} ago - {{ event.starts_at|date }}</time>
-        {% else %}
-            <time class="detail-card__event-time">{{ event.starts_at }} - {{ event.ends_at }}</time>
-        {% endif %}
-        <div class="detail_form_container">
-            {% if user.is_authenticated %}
-        <div class="event-detail__underline" aria-hidden="true"></div>
+            </div>
+            {% if event.ends_at < now %}
+                <time class="detail-card__event-time">{{ event.starts_at|timesince }} ago - {{ event.starts_at|date }}</time>
+            {% else %}
+                <time class="detail-card__event-time">{{ event.starts_at }} - {{ event.ends_at }}</time>
             {% endif %}
-            {% include 'events/attendance.html' %}
+            <div class="detail_form_container">
+                {% if user.is_authenticated %}
+                    <div class="event-detail__underline" aria-hidden="true"></div>
+                {% endif %}
+                {% include 'events/attendance.html' %}
 
-            <p data-error class="error hidden" aria-live="polite"></p>
-        </div>
+                <p data-error class="error hidden" aria-live="polite"></p>
+            </div>
         </article>
 
-  </div>
+    </div>
 {% endblock content %}
 {% block javascript %}
     <script src="{% static 'scripts/attendance-form.js' %}"></script>

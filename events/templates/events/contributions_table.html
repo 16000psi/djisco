@@ -2,8 +2,8 @@
 <div>
 
     {% if user == event.organiser %}
-    <p class="event-detail__form-description">As the organiser, you can use this form to list items that you would like attendees to bring to your event.</p>
-            <div class="event-detail__underline" aria-hidden="true"></div>
+        <p class="event-detail__form-description">As the organiser, you can use this form to list items that you would like attendees to bring to your event.</p>
+        <div class="event-detail__underline" aria-hidden="true"></div>
         <form action="{% url 'requirement_create' pk=event.id %}" class="contribution-form" method="post">
             {% csrf_token %}
 
@@ -18,27 +18,27 @@
                     {% endif %}
                 </div>
             {% endfor %}
-                <button type="submit" class="button button--submission">Add</button>
+            <button type="submit" class="button button--submission">Add</button>
         </form>
         <div class="event-detail__underline" aria-hidden="true"></div>
     {% endif %}
     <table>
 
-    <h3>Requested Items</h3>
+        <h3>Requested Items</h3>
         {% if user.is_authenticated and user == event.organiser %}
-        <p class="event-detail__table-description">Items you have requested for this event.  To change the quantity of an item, click on its name.</p>
+            <p class="event-detail__table-description">Items you have requested for this event.  To change the quantity of an item, click on its name.</p>
         {% else %}
-        <p class="event-detail__table-description">Items the organiser has requested for this event</p>
+            <p class="event-detail__table-description">Items the organiser has requested for this event</p>
         {% endif %}
         <thead>
             <tr>
                 <th scope="col">Item</th>
                 <th scope="col">Pleged / Required</th>
-        {% if user.is_authenticated and event.has_user_rsvp %}
-                <th scope="col">
-                Contribute
-                </th>
-        {% endif %}
+                {% if user.is_authenticated and event.has_user_rsvp %}
+                    <th scope="col">
+                        Contribute
+                    </th>
+                {% endif %}
             </tr>
         </thead>
         <tbody>
@@ -46,23 +46,23 @@
                 <tr>
                     <td class="contribution-title">
                         {% if user == event.organiser %}
-          <a href="{% url 'requirement_edit' contribution_item_pk=item.pk pk=event.pk %}" aria-label="Edit your pledged contribution">
-            {{ item.title }} </a>
-          {% else %}
-          {{ item.title }}
-          {% endif %}
-</td>
-
-        <td>{{ item.commitments_count }} / {{ item.requirements_count }}</td>
-                        {% if event.has_user_rsvp %}
-                    <td>
-                        {% if event.has_user_rsvp %}
-                            <a href="{% url 'commitment_create' contribution_item_pk=item.pk pk=event.pk %}" aria-label="Edit your pledged contribution" class="button button--border">
-                                Contribute
-                            </a>
+                            <a href="{% url 'requirement_edit' contribution_item_pk=item.pk pk=event.pk %}" aria-label="Edit your pledged contribution">
+                                {{ item.title }} </a>
+                        {% else %}
+                            {{ item.title }}
                         {% endif %}
                     </td>
-        {% endif %}
+
+                    <td>{{ item.commitments_count }} / {{ item.requirements_count }}</td>
+                    {% if event.has_user_rsvp %}
+                        <td>
+                            {% if event.has_user_rsvp %}
+                                <a href="{% url 'commitment_create' contribution_item_pk=item.pk pk=event.pk %}" aria-label="Edit your pledged contribution" class="button button--border">
+                                    Contribute
+                                </a>
+                            {% endif %}
+                        </td>
+                    {% endif %}
                 </tr>
             {% empty %}
                 <tr>

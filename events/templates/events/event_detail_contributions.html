@@ -2,16 +2,16 @@
 {% load static %}
 {% block title %}Event App - {{ event.title }}{% endblock title %}
 {% block content %}
-<div class="layout">
+    <div class="layout">
         <h2 class="event-detail__title">Event: {{ event.title }}</h2>
-<a class="button button--tab" href="{% url 'event_detail' pk=event.id %}">Details</a>
-<a class="button button--tab button--tab-highlighted" href="{% url 'event_detail_contributions' pk=event.id %}">Contributions</a>
-    <article data-event-card class="detail-card">
+        <a class="button button--tab" href="{% url 'event_detail' pk=event.id %}">Details</a>
+        <a class="button button--tab button--tab-highlighted" href="{% url 'event_detail_contributions' pk=event.id %}">Contributions</a>
+        <article data-event-card class="detail-card">
 
             {% include 'events/contributions_table.html' %}
         </article>
 
-  </div>
+    </div>
 {% endblock content %}
 {% block javascript %}
     <script src="{% static 'scripts/attendance-form.js' %}"></script>

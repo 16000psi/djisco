@@ -1,15 +1,15 @@
 <article data-event-card class="card">
-            <a href="{% url 'event_detail' pk=event.id %}">
-    {% if event.ends_at < now %}
-        <time class="card__event-time">{{ event.starts_at|timesince }} ago</time>
-    {% else %}
-        <time class="card__event-time">{{ event.starts_at }}</time>
-      {% endif %}
+    <a href="{% url 'event_detail' pk=event.id %}">
+        {% if event.ends_at < now %}
+            <time class="card__event-time">{{ event.starts_at|timesince }} ago</time>
+        {% else %}
+            <time class="card__event-time">{{ event.starts_at }}</time>
+        {% endif %}
         <div class="title_attending_container">
-                <h3 class="card__event-title">{{ event.title }}</h3>
+            <h3 class="card__event-title">{{ event.title }}</h3>
 
         </div>
-    <div class="card__title-underline" aria-hidden="true"></div>
+        <div class="card__title-underline" aria-hidden="true"></div>
         <p class="card__event-description">{{ event.description }}</p>
         <p class="card__event-attendance"
            data-attendance-description
@@ -22,7 +22,7 @@
             {% endif %}
         </p>
 
-    <p class="card__event-location">{{ event.location }}</p>
-    <p data-error class="error hidden" aria-live="polite"></p>
-            </a>
+        <p class="card__event-location">{{ event.location }}</p>
+        <p data-error class="error hidden" aria-live="polite"></p>
+    </a>
 </article>
